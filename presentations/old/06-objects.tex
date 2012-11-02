@@ -1,0 +1,860 @@
+\newif\iffaked \fakedfalse
+\iffaked
+\documentclass{sepslide-soa-faked} % jim has mucked up xdvi settings
+\else
+\documentclass{sepslide-soa}
+\fi
+
+\title{Objects}
+\topic{6}{Objects}[SeaGreen]
+\indexfile{00-index.pdf}
+
+\begin{document}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+  \Contents
+\end{slide}
+
+\begin{slide}
+\Heading{Object-oriented middleware}
+  \begin{itemize}
+  \item in a distributed system, components reside on different hosts
+  \item hence operation requests must traverse a network
+  \item ultimately, networks connect computers via the physical interchange
+    (transmission and recognition) of electrical or physical signals
+  \item \ldots but that is nearly always too low a level to be convenient:
+    higher level abstractions are to be preferred
+  \item the ISO Open Systems Interconnection reference model is a layered
+    architecture of such abstractions
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Subheading{ISO/OSI reference model}
+  \begin{description}
+  \item[application layer:] business logic
+  \item[presentation layer:] higher-level datatypes
+  \item[session layer:] connection protocol
+  \item[transport layer:] packets and streams
+  \item[network layer:] routing between nodes
+  \item[datalink layer:] network topology
+  \item[physical layer:] electrical and optical behaviour
+  \end{description}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Transport layer}
+  \begin{itemize}
+  \item two main implementations on Unix systems
+  \item \emph{transmission control protocol} (TCP)
+  \item \emph{user datagram protocol} (UDP)
+  \item different characteristics (connection-oriented vs connectionless),
+    suitable for different kinds of application
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Subheading{TCP}
+  \begin{itemize}
+  \item bidirectional byte streams between hosts
+  \item connection-oriented
+  \item buffering at both sides to decouple computation speeds
+  \item reliable but slow
+  \item really provides session-layer facilities too
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Subheading{UDP}
+  \begin{itemize}
+  \item packet-oriented transmission
+  \item packet contains destination address
+  \item connectionless
+  \item queueing at receiver only
+  \item unreliable but fast
+  \item session layer needs to provide reliability
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Subheading{The need for middleware}
+  You could implement a distributed system over the transport layer:
+  \begin{itemize}
+  \item manual mapping of data values to byte stream
+  \item manual resolution of data heterogeneity
+  \item manual identification of components
+  \item manual implementation of component activation
+  \item manual synchronization of interaction
+  \item no guarantees of type safety
+  \item no guarantees of quality of service 
+  \end{itemize}
+  \ldots but you wouldn't want to.
+\end{slide}
+
+\begin{slide}
+  \Subheading{Middleware}
+  \begin{itemize}
+  \item instead, these services are provided by \emph{middleware}
+  \item an implementation of the \emph{session} and \emph{presentation}
+    layers of the OSI reference model
+  \item bridge between application layer (`business logic') and transport
+    layer (`operating system')
+  \item makes distribution (largely) transparent
+  \item different middleware philosophies, with different goals
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Object-oriented middleware}
+  \begin{itemize}
+  \item OO middleware evolved from remote procedure calls
+  \item CORBA first; then DCOM, Java/RMI
+  \item beyond RPCs, OO middleware supports object types as parameters,
+    failure handling and inheritance
+  \item \emph{presentation layer} implementation must additionally define
+    representation for object references, deal with exceptions, and
+    marshall inherited attributes
+  \item \emph{session layer} implementation uses \emph{object adapter} to
+    map object references to objects (like \texttt{portmap}) and to
+    activate inactive objects (like \texttt{inetd})
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Development steps}
+  \includegraphics[width=0.9\textwidth]{diagrams/developing.eps}
+\end{slide}
+
+\begin{slide}
+\Heading{CORBA}
+`Common Object Resource Broker Architecture'
+\begin{itemize}
+\item interface definition language
+  \begin{quote}
+  language-independent specification of interfaces
+  \end{quote}
+\item programming language independence
+  \begin{quote}
+  multiple language mappings for IDL: legacy-friendly
+  \end{quote}
+\item location transparency and automatic server activation
+  \begin{quote}
+  call independent of physical location (which may vary dynamically);
+  services started up on demand
+  \end{quote}
+\item automatic stub and skeleton code generation for RPC
+  \begin{quote}
+  network connections, marshalling, server forwarding
+  \end{quote}
+\item reuse of CORBA services and facilities
+  \begin{quote}
+  naming, % (white- and yellow-pages), 
+  transactions, security; 
+  compound documents;
+  etc
+  \end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Object Management Group} % V&D 2.1
+\begin{itemize}
+\item CORBA standards produced by OMG
+\item world's largest computer industry consortium \\
+  (now over 800 members)
+\item non-profit
+\item started 1989 with 3Com, American Airlines, Canon, Data General, HP,
+Philips Telecoms, Sun, Unisys
+\item doesn't develop technology or specs itself; provides structure
+whereby members specify and implement
+\item favours cooperation and compromise over choosing one member's solution
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Object Management Architecture} % V&D 2.2.1; CS 13.2
+\begin{itemize}
+\item OMA is framework for all OMG technology
+\item two fundamental models on which CORBA and the other standard
+interfaces based
+\item \emph{core object model}
+  \begin{quote}
+  abstract definitions of concepts that allow distributed application
+  development to be facilitated by an ORB; 
+  mostly of interest to ORB designers and implementers
+  \end{quote}
+\item \emph{reference model}
+  \begin{quote}
+  places ORB at centre of groupings of objects with standardized interfaces
+  that provide support for application object developers;
+  relevant to CORBA programmers
+  \end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Core Object Model} % VD 2.2.2
+\begin{description}
+\item[objects:]
+models of entities or concepts;
+with \emph{identity}, independent of properties or behaviour, 
+and represented by an \emph{object reference}
+\item[operations:]
+\emph{action} offered by object to outside world;
+has \emph{signature} (name, parameters, result types);
+may cause \emph{side-effects}, be \emph{concurrent}, be \emph{atomic}
+\item[non-object types:]
+numeric, strings, records, fixed-size arrays
+\item[interfaces:]
+collection of operation signatures
+\item[substitutivity:]
+being able to use one object in place of another without `interaction error';
+specifically, when interface of former includes that of latter
+\item[inheritance:]
+explicitly behavioural substitutivity;
+hierarchy is rooted directed acyclic graph
+\end{description}
+\end{slide}
+
+\begin{slide}
+\Subheading{Reference Model} % VD 2.2.3
+\begin{center}
+  \includegraphics[scale=0.75]{diagrams/corba-model}
+\end{center}
+\begin{description}
+\item[object request broker:]
+message bus for object invocations
+\item[object services:]
+eg naming and trading, transactions, concurrency control, licensing, security
+\item[common facilities:]
+horizontal (across application domains) % , eg compound documents, internationalization) 
+and vertical (domain-specific) % , eg telecoms, business objects, health care)
+\item[application objects:]
+competitive, but not standardized
+\end{description}
+\end{slide}
+
+\begin{slide}
+\Subheading{OMG Interface Definition Language} % V&D 2.3.4
+\begin{itemize}
+\item common language for specifying object interfaces
+\item types, modules, operations, interfaces, multiple inheritance
+\item \emph{bindings} to common OO languages
+  (Java, Smalltalk, C++, Ada95, even C and COBOL)
+\item IDL compiler 
+\item deposit interface in ORB's \emph{interface repository}
+\item register implementation with \emph{implementation repository}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Structure of an ORB} % V&D 2.3.3
+  \includegraphics[width=0.9\textwidth]{diagrams/orb-structure}
+\end{slide}
+
+\begin{slide}
+\Subheading{Client stubs} % V&D 2.3.3.1
+\begin{itemize}
+\item collaborates with skeleton to implement presentation (and part of session) layer: heterogeneity, marshalling, streaming
+\item acts as proxy for client to invoke IDL-specified operation on object reference as if it were local method call
+\item client links in stub for IDL interface
+\item stub conveys invocation to remote target object
+\item generated from interface specification
+   by IDL compiler for client's language
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Implementation skeleton} % V&D 2.3.3.3
+\begin{itemize}
+\item means to invoke correct method on correct implementation
+  when request reaches server supporting some objects
+\item achieved by \emph{implementation skeleton}
+\item automatically generated from interface specification by IDL compiler
+\item \emph{unmarshalling} from wire-format to in-memory data structures
+  (uses IDL language mapping), \emph{invocation}, marshalling of \emph{results}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Illustration of stub and skeleton}
+  \includegraphics[width=0.9\textwidth]{diagrams/stub-skeleton.eps}
+\end{slide}
+
+\begin{slide}
+  \Subheading{\textsc{Generation Gap}}
+  \begin{itemize}
+  \item $Stub$ and $Skeleton$ typically generated automatically from IDL
+  \item $Caller$ needs to be linked with $Stub$, and $Callee$ with $Skeleton$
+  \item (always!) a bad idea to do this by editing generated code
+  \item instead, generate (abstract) superclasses, and make modifications on subclasses
+  \item an instance of Vlissides' \textsc{Generation Gap} pattern
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Dynamic invocation interface} % V&D 2.3.3.2
+\begin{itemize}
+\item DII allows invocation without having IDL compiler-generated stub
+\item client has object reference, constructs request dynamically
+\item provides operations to select target object for invocation, to name
+request, to add arguments
+\item also provides operations to invoke request and to retrieve results
+\item necessary information obtained from \emph{interface repository}
+\item `generic stub'
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Dynamic skeleton interface} % V&D 2.3.3.4
+\begin{itemize}
+\item allows ORB to invoke object implementation without compile-time
+knowledge of interface, ie without skeleton code
+\item idea is to invoke all implementations with same, general operation
+\item delaying dynamic selection till server-side
+\item object implementation cannot distinguish calls via compiler-generated
+skeleton from calls via DSI
+\item `generic skeleton', eg single servant implementing many objects of
+  different types (such as RDB entries) % CORBA 2.3 (98-12-01) S11.6.11
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Object adapters} % V&D 2.3.3.5; Vinoski 3.7
+\begin{itemize}
+\item `glue' used by object implementation to make itself available through
+  ORB, and by ORB to manage run-time environment of implementations 
+\item allows programming language entities to be registered as
+  implementations for CORBA objects
+\item generates object references for CORBA objects
+\item activates server processes and objects if necessary
+%\item language specific
+%  (eg C implementation might register with object adapter by passing struct
+%  pointer and collection of function pointers as defined in IDL; 
+%  C++ implementation might simply pass object reference)
+\item early CORBA provided only a \emph{Basic Object Adapter}, but this was
+  underspecified and hence had incompatible implementations
+\item revisions since 2.2 provide also a \emph{Portable Object Adapter}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Upper layers: 
+  services, facilities} % CS 13.3-5
+\begin{itemize}
+\item object services support CORBA-based programs independently of domain;
+  fundamental infrastructure for distributed systems
+\item \emph{common facilities} are component frameworks, 
+  horizontal (domain-independent) or vertical (domain-specific)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{CORBAservices} % CS 13.3
+\begin{description}
+\item[change management:]
+  version tracking, compatibility 
+\item[collections:]
+  sets, bags, queues, lists, trees, etc
+\item[concurrency:]
+  locks on resources
+\item[event notification:]
+  push or pull, over channels
+\item[externalization:]
+  serialization
+\item[licensing:]
+  licensing policies, usage monitoring and charging
+\item[lifecycle:]
+  creation, copying, mobility and deletion of objects
+\item[naming:]
+  association between names and unique IDs
+\end{description}
+\end{slide}
+
+\begin{slide}
+\begin{description}
+\item[persistence:]
+  save object instances on termination, restore later
+\item[properties:]
+  addition, retrieval, deletion of tags
+\item[queries:]
+  locate objects by attributes, using OQL and SQL
+\item[relationships:]
+  creation, deletion, navigation of relations
+\item[security:]
+  confidentiality, integrity, accountability, availability
+\item[time:]
+  clock synchronization
+\item[trading:]
+  locate services by description
+\item[transactions:]
+  atomicity, consistency, isolation, durability (ACID)
+\end{description}
+\end{slide}
+
+\begin{slide}
+\Subheading{CORBAfacilities} % CS 13.5
+\begin{itemize}
+\item define component frameworks for integrating components
+\item \emph{horizontal} facilities (domain-independent):
+  focus on specific application models, unlike object services
+\item \emph{user interfaces}
+  (printing, email, scripting)
+\item \emph{information management}
+  (structured storage, universal data transfer, meta-data)
+\item \emph{system management}
+  (instrumentation, monitoring, logging)
+\item \emph{task management}
+  (workflow, rules, agents)
+\item eg \emph{Distributed Document Component Facility} based on Apple's OpenDoc
+\item \emph{vertical} common facilities, such as electronic finance,
+medical facilities, CAD 
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{A simple CORBA example}
+\begin{itemize}
+\item simplest possible distributed application
+\item `business logic' says hello
+\item server makes business logic available
+\item client requests service
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{The interface}
+\begin{verbatim}
+module helloworldexample {
+  interface HelloWorld {
+    string getMessage();
+  };
+};
+\end{verbatim}
+In this module, interface \texttt{HelloWorld} consists of a single method
+\texttt{getMessage}, which takes no parameters and returns a
+\texttt{string}. 
+\end{slide}
+
+\begin{slide}
+\Subheading{Compiling the IDL}
+Running the IDL through the IDL-to-Java compiler
+%\begin{verbatim}
+%  jidl HelloWorld.idl
+%\end{verbatim}
+generates a number of files (for each interface),
+in directory \texttt{helloworldexample} corresponding to module:
+\begin{verbatim}
+  $ ls helloworldexample
+  HelloWorld.java        
+  HelloWorldHelper.java  
+  HelloWorldHolder.java      
+  HelloWorldOperations.java  
+  HelloWorldPOA.java
+  HelloWorldPOATie.java
+  _HelloWorldStub.java
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Class diagram}
+\includegraphics[scale=0.5]{diagrams/hello-inheritance.eps}
+\end{slide}
+
+\begin{slide}
+\Subheading{Operations interface}
+Java translation of specified interface:
+\begin{verbatim}
+package helloworldexample;
+public interface HelloWorldOperations {
+  String getMessage();
+}
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Skeleton}
+Server-side object will extend this (abstract) skeleton:
+\begin{verbatim}
+package helloworldexample;
+public abstract class HelloWorldPOA 
+  ... implements HelloWorldOperations {
+  public ... _invoke(String opName, ...) {
+    final String[] _ob_names = { "getMessage" };
+    int _ob_index = ...; // find opName
+    switch(_ob_index) {
+    case 0: return getMessage(...);
+    }
+  }
+  public abstract String getMessage();
+}
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Signature interface}
+Interface of what clients will actually receive:
+\begin{verbatim}
+package helloworldexample;
+public interface HelloWorld extends
+  HelloWorldOperations,
+  org.omg.CORBA.Object,
+  org.omg.CORBA.portable.IDLEntity {
+}
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Stub}
+Stub for client, implementing client interface:
+\begin{verbatim}
+package helloworldexample;
+public class _HelloWorldStub ... implements HelloWorld {
+  public String getMessage() {
+    while(true) {
+      try {
+        ... _invoke("getMessage"...);
+      }
+      catch(...) {
+        ...
+      }
+    }
+  }
+}
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Helper}
+\begin{verbatim}
+package helloworldexample;
+final public class HelloWorldHelper {
+  public static void
+    insert(Any any, HelloWorld val) { ... }
+  public static HelloWorld
+    extract(Any any) { ... }
+
+  public static TypeCode type() { ... }
+
+  public static HelloWorld
+    read(InputStream in) { ... }
+  public static void
+    write(OutputStream out, HelloWorld val) { ... }
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\begin{verbatim}
+  public static HelloWorld
+    narrow(org.omg.CORBA.Object val) {
+    try {
+      return (HelloWorld)val;
+    } 
+    catch(ClassCastException ex) {
+    }
+    ...
+    return null;
+  }
+}
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Holder}
+To support call-by-name:
+\begin{verbatim}
+package helloworldexample;
+final public class HelloWorldHolder ... {
+  public HelloWorld value;
+
+  public HelloWorldHolder() {}
+
+  public HelloWorldHolder(HelloWorld initial) {
+    value = initial;
+  }
+
+  ...
+}
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Fleshing out the skeleton}
+\begin{verbatim}
+import helloworldexample.*;
+public class HelloWorldImpl extends HelloWorldPOA {
+  private String s;
+
+  public HelloWorldImpl(String s) {
+    this.s = s;
+  }
+
+  public String getMessage() {
+    return s;
+  }
+}
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{The server}
+\begin{verbatim}
+import helloworldexample.*;
+public class HelloWorldServer {
+  private static int run(...) { ... }
+
+  public static void main(String args[]) {
+    int status = 0;
+    ORB orb = null;
+    try {
+      orb = ORB.init(args, null);
+      status = run(orb, args);
+    }
+    catch(Exception e) { e.printStackTrace(); status = 1; }
+    ...
+  }
+}
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\begin{verbatim}
+  private static int run(ORB orb, String[] args)
+    throws UserException {
+
+    POA rootPOA = POAHelper.narrow(
+      orb.resolve_initial_references("RootPOA"));
+    POAManager manager = rootPOA.the_POAManager();
+
+    HelloWorldImpl helloImpl = new HelloWorldImpl(args[0]);
+    HelloWorld helloworld = helloImpl._this(orb); // alternatives!
+
+    String ref = orb.object_to_string(helloworld);
+    System.out.println(ref);
+
+    manager.activate();
+    orb.run();
+
+    return 0;
+  }
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{The client}
+\begin{verbatim}
+  private static int run(ORB orb, String[] args)
+    throws UserException {
+
+    // Get "HelloWorld" object
+    org.omg.CORBA.Object obj = orb.string_to_object(args[0]);
+    if(obj == null) {
+      System.err.println(
+        "helloworldexample.Client: cannot unstringify IOR");
+      return 1;
+    }
+
+    HelloWorld helloworld = HelloWorldHelper.narrow(obj);
+    System.out.println(helloworld.getMessage());
+    return 0;
+  }
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Running the application}
+Start server:
+\begin{verbatim}
+  java HelloWorldServer "Dib, dib, dib."
+\end{verbatim}
+This prints out interoperable object reference:
+\begin{verbatim}
+  IOR:000000000000002549444c3a68656c6c6f776f726c646578616d
+  706c652f48656c6c6f576f726c643a312e3000000000000000010000
+  0000000000780001020000000015736531372e636f6d6c61622e6f78
+  2e61632e756b0000040600000024abacab3139373732333133333400
+  5f526f6f74504f410000cafebabe3a3f5de6...
+\end{verbatim}
+Then (in a different window, on a different machine) start client with this
+IOR: 
+\begin{verbatim}
+  java HelloWorldClient IOR:000...
+\end{verbatim}
+This prints out the message
+\begin{verbatim}
+  Dib, dib, dib.
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{What's in a name? \texttt{iordump}}
+\begin{verbatim}
+byteorder: big endian
+type_id: IDL:helloworldexample/HelloWorld:1.0
+IIOP profile #1:
+iiop_version: 1.2
+host: se17.comlab.ox.ac.uk
+port: 1054
+object_key: (36)
+171 172 171  49  57  56  57  53 "...19895" [...]
+Native char codeset: 
+  "ISO 8859-1:1987; Latin Alphabet No. 1"
+Char conversion codesets:
+  "ISO 646:1991 IRV (International Reference Version)" [...]
+Native wchar codeset: 
+  "ISO/IEC 10646-1:1993; UTF-16, UCS Transformation Format 16-bit"
+Wchar conversion codesets:
+  "ISO/IEC 10646-1:1993; UCS-2, Level 1"
+\end{verbatim}
+\end{slide}
+
+%\begin{slide}
+%\Heading{Service Component Architecture}
+%\end{slide}
+
+\begin{slide}
+\Heading{Objects vs services}
+\begin{itemize}
+\item CORBA promotes components, abstraction, message exchange, distribution\ldots
+\item isn't this service-oriented too? what's different about SOA?
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Object orientation}
+\begin{minipage}{0.6\textwidth} \raggedright
+\begin{description}
+\item[encapsulation:] public \emph{interfaces} and private
+  \emph{implementations}; hidden state
+\item[polymorphism:] \emph{multiple implementations} of interface,
+  forming \emph{subtypes} of interface type;
+  instance of subtype is acceptable whenever instance of supertype expected
+\item[identity:] each object has an \emph{identity}, by which it is
+  accessed; identities may be passed around, and persist even
+  when object's internal state changes
+\end{description}
+\end{minipage}\quad\begin{minipage}{0.35\textwidth}
+\includegraphics[width=\textwidth]{diagrams/pie.eps}
+\end{minipage}
+\end{slide}
+
+\begin{slide}
+\Subheading{Conversation}
+\begin{itemize}
+\item many applications involve managing a \emph{conversation}
+\item that is, they are stateful
+\item think of customer call centre
+\item works fine with distributed objects
+\begin{itemize}
+\item obtain object reference
+\item continuous dialogue with single object
+\item object maintains state
+\end{itemize}
+\item does not work so well with stateless services
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Context}
+The essence of the problem is in maintaining shared context:
+\begin{itemize}
+    \item what organization do you represent?
+    \item where are we in this business process?
+    \item what transactions have we done in the past?
+    \item are there any resources that I promise to hold for you?
+    \item are there any notifications I promise to deliver to you later?
+    \item what permissions do you have?
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Managing context}
+\begin{itemize}
+\item implicitly: both parties keeping track
+\begin{quote}
+fragile, redundant
+\end{quote}
+\item explicitly: passing to and fro
+\begin{quote}
+inefficient, especially as relationship deepens
+\end{quote}
+\item externally: context as a resource
+\begin{quote}
+{\sffamily
+For instance, on Expedia there is a `My Itinerary' URI for each individual. Within that, every purchase you have recently made has its own URI. While you are purchasing a new ticket, each step in the process is represented by another URI. The client may keep copies of resources for its own protection, but the context is always mutually available as a series of linked documents at a URI.
+} \medskip \\
+(Paul Prescod, \textit{REST and the Real World})
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{WS-Context}
+\begin{itemize}
+\item grouping of related interactions into an \emph{activity}
+\item nesting structures for related contexts
+\item \textit{Context Service}
+\begin{itemize}
+\item initiation, completion
+\item expiry time too
+\end{itemize}
+\item contexts can be passed by reference or by value
+\begin{itemize}
+\item \textit{Context Manager Service} for managing contexts-by-reference
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{WS-Resource Framework}
+\begin{itemize}
+\item stateless access to stateful resource
+\item (not the same thing as conversational or session state)
+\item statefulness of resource made explicit in a standard way
+\item service makes (representation of) resource available
+\item declare, create, access, monitor, destroy
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Identifiers}
+\begin{itemize}
+\item uniform resource identifier (URI)
+\item services versus resources
+\medskip
+\item interoperable object reference (IOR)
+\item everything is an object: `services' and `resources'
+\item references to either can be passed around
+\item callbacks, asynchronous messaging\ldots
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Documents}
+\begin{itemize}
+\item SOA is \emph{document-centric}
+\item focus is on the documents/representations
+\item services/transformations are transient
+\medskip
+\item dual to \emph{object-oriented} approach
+\item focus is on the distributed objects
+\item transmitted data is transient
+\medskip
+\item maybe SOA is a misnomer?
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}

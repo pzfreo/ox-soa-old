@@ -1,0 +1,178 @@
+\documentclass{sepslide-soa}
+
+\title{Map--Reduce}
+\topic{07c}{Map--Reduce}[JungleGreen]
+\indexfile{00-index.pdf}
+% \slidebottomleft{\copyright 2008}
+\author{Jeremy Gibbons}
+
+\begin{document}
+
+% \date{November 2009}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+\Heading{Google's Map--Reduce architecture}
+\begin{itemize}
+\item `simplified data processing on large clusters'
+\item massively parallel data analysis applications
+\item programming model and library
+\item distribution, fault tolerance, I/O scheduling, monitoring
+\item inspired by FP notions (`map' and `reduce')
+\item paper by Jeffrey Dean and Sanjay Ghemawat at OSDI2004
+\item see also \url{http://labs.google.com/papers/mapreduce.html}
+\item more recent: \url{http://www.slideshare.net/jhammerb/mapreduce-pact06-keynote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Problem}
+\begin{itemize}
+\item 20+ billion web pages, 20KB each: 400+TB
+\item disk read speed 30--35MB/s: four months to read data
+\item 1000 disks even to store it, but then only 3 hours to read
+\item however, programming is very difficult
+\item stuff breaks: 10,000 servers, MTBF $\approx$ 3 years each\ldots
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Typical task structure}
+\begin{enumerate}
+\item read a lot of data
+\item extract something of interest from each record (`map')
+\item shuffle and sort
+\item aggregate, summarize, filter, or transform (`reduce')
+\item write results
+\end{enumerate}
+\end{slide}
+
+\begin{slide}
+\Heading{Programming model}
+Based on key--value pairs.
+Programmer writes just two functions.
+
+\emph{Map function} takes input key--value to set of intermediate key--values:
+\begin{verbatim}
+  map :: (InKey, InValue) -> List (OutKey, OutValue)
+\end{verbatim}
+
+\emph{Reduce function} combines values for each intermediate key \\ (usually producing just a single value):
+\begin{verbatim}
+  reduce :: (OutKey, List OutValue) -> List OutValue
+\end{verbatim}
+
+Sometimes also a \emph{partition function}:
+\begin{verbatim}
+  partition :: (OutKey, NumPartitions) -> PartitionId
+\end{verbatim}
+(by default, hashing modulo number of partitions).
+\end{slide}
+
+\begin{slide}
+\Subheading{Example: word frequencies (pseudocode)}
+\begin{verbatim}
+type InKey = String      -- document name
+type InValue = String    -- document contents
+type OutKey = String     -- word
+type OutValue = Integer  -- count
+
+map (name, contents)  = [ (word, 1) | word <- contents ]
+reduce (word, counts) = [ sum counts ]
+\end{verbatim}
+(In fact, it's a C++ library, and all keys and values are just strings.)
+\end{slide}
+
+\begin{slide}
+\Subheading{Many more examples}
+\begin{description}
+\item[distributed grep:] mapper emits matching lines, reducer is identity
+\item[term vectors:] like wordcount, but discarding infrequent words
+\item[access statistics:] wordcount on web server logs
+\item[inverted index:] mapper emits \verb"(Word,DocId)" pairs
+\item[reverse web-links:] mapper emits \verb"(Target,Source)" pairs for hyperlinks
+\item[distributed sort:] depends on ordering properties of partition, output
+\end{description}
+Lots of \emph{extract--transform--load} tasks work well.
+
+Thousands of applications in Google source tree (6000+ in 2006). \\
+Production indexing system is a sequence of 24 MR instances.
+\end{slide}
+
+\begin{slide}
+\Heading{Implementation}
+\begin{itemize}
+\item commodity PCs (eg dual-core x86 running linux)
+\item commodity networking (eg 100Mb/s or 1Gb/s)
+\item cheap disks attached directly to computers
+\item custom redundant distributed file system
+\item cluster of hundreds or thousands of machines (eg 1800 in OSDI paper)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Execution}
+\begin{itemize}
+\item divide input data into $M$ \emph{splits}, typically about 64MB
+\item apply map function to each split
+\item arrange intermediate values into $R$ \emph{partitions}
+\item apply reduce function to each partition
+\item often $M=200,000$ and $R=5,000$ on $N=2,000$ workers: fine-grain
+\item \emph{master} process assigns tasks to workers, taking locality into account
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\includegraphics[height=\textheight]{diagrams/mapreduce}
+\end{slide}
+
+\begin{slide}
+\Subheading{Fault tolerance}
+\begin{itemize}
+\item regular polling of worker machines
+\item failure handled by restarting map tasks and in-progress reduce tasks
+\item (complete reduce tasks stored on global server)
+\item master failure is unlikely, because only a single machine
+\item soundness depends on lack of side-effects \\ (and on transactional commits)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Backup tasks}
+\begin{itemize}
+\item straggler tasks lengthen overall computation time
+\item eg from bad disk (slowing reads from 30MB/s to 1MB/s)
+\item eg faulty initialization, disabling processor cache (100-fold slowdown)
+\item when nearly done, master process spawns backup executions of remaining in-progress tasks
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Refinements}
+\begin{itemize}
+\item guaranteed ordering by key within each partition
+\item optional \emph{combiner} function for output of map tasks
+\item side-effects allowed, if atomic and idempotent
+\item skipping bad records (eg for buggy user code)
+\item local execution mode for debugging
+\item master process runs internal web server for statistics
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Hadoop}
+\begin{itemize}
+\item Apache open-source framework for scalable distributed computing
+\item MapReduce, after Google
+\item HDFS distributed file system
+\item other subprojects: Avro, Chukwa, Hive, Pig\ldots
+\item \url{http://hadoop.apache.org/}
+\end{itemize}
+\end{slide}
+
+\end{document}
+
+

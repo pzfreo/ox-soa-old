@@ -1,0 +1,314 @@
+\newif\iffaked \fakedfalse
+\iffaked
+\documentclass{sepslide-soa-faked} % jim has mucked up xdvi settings
+\else
+\documentclass{sepslide-soa}
+\fi
+
+\title{Engineering SOA}
+\topic{9}{Engineering SOA}[BlueGreen]
+\indexfile{00-index.pdf}
+
+\begin{document}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+  \Contents
+\end{slide}
+
+\begin{slide}
+\Heading{Organization}
+\begin{itemize}
+\item SOA is not just a technical development
+\item successful adoption has organizational consequences too
+\bigskip
+\item arguments from Josuttis, \textit{SOA in Practice}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Before SOA: silos}
+\begin{flushleft}
+\includegraphics[height=0.8\textheight]{diagrams/silos}
+\end{flushleft}
+Separate fiefdoms, controlling independent systems.
+\end{slide}
+
+\begin{slide}
+\Subheading{With SOA: services}
+\begin{flushleft}
+\includegraphics[height=0.8\textheight]{diagrams/layered-abstraction}
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Subheading{Organizational structure}
+\begin{itemize}
+\item refactoring of fiefdoms:
+  \begin{itemize}
+  \item backend departments
+  \item cross-domain departments
+  \item frontend departments
+  \item ``solutions managers'' 
+  \end{itemize}
+\item requires collaboration and trust
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Conway's law}
+\begin{quote} 
+{\sffamily Any organization that designs a system will
+    inevitably produce a design whose structure is a copy of the
+    organization's communication structure.
+} \medskip \\
+(Melvin Conway, \textit{How Do Committees Invent?}, Datamation Apr 1968,
+\url{http://www.melconway.com/law/})
+\end{quote}
+
+Popularized and named by Fred Brooks in \textit{The Mythical Man-Month}:
+``If you have four groups working on a compiler, you'll get a 4-pass compiler.''
+
+Conversely\ldots
+\end{slide}
+
+\begin{slide}
+\Heading{Lifecycle}
+\begin{itemize}
+\item services are software
+\item standard software lifecycle practices
+\item but services also part of larger organizational processes
+\item therefore some differences
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Core phases}
+\begin{center}
+\includegraphics[height=0.8\textheight]{diagrams/service-lifecycle-core}
+\end{center}
+\end{slide}
+
+\begin{slide}
+\Subheading{Iterative development in context}
+\begin{center}
+\includegraphics[height=0.8\textheight]{diagrams/service-lifecycle-iterate}
+\end{center}
+Some decisions will need revisiting.
+\end{slide}
+
+\begin{slide}
+\Subheading{Identifying services}
+\begin{center}
+\includegraphics[height=0.8\textheight]{diagrams/service-lifecycle-identify}
+\end{center}
+Requirements, analysis, portfolio management\ldots
+\end{slide}
+
+\begin{slide}
+\Subheading{Fixing services}
+\begin{center}
+\includegraphics[height=0.8\textheight]{diagrams/service-lifecycle-fix}
+\end{center}
+If it's just a bug-fix, fix it in-place.
+\end{slide}
+
+\begin{slide}
+\Subheading{Modifying services}
+\begin{center}
+\includegraphics[height=0.8\textheight]{diagrams/service-lifecycle-modify}
+\end{center}
+If it's in any way significant, make a new service.
+\end{slide}
+
+\begin{slide}
+\Subheading{Withdrawing services}
+\begin{center}
+\includegraphics[height=0.8\textheight]{diagrams/service-lifecycle-withdraw}
+\end{center}
+deprecate $\to$ monitor $\to$ persuade $\to$ delete
+\end{slide}
+
+\begin{slide}
+\Heading{Versioning}
+\begin{itemize}
+\item waterfall principles giving way to agile
+\item SOA is designed for flexibility
+\item especially for large systems, cannot fix requirements
+\medskip
+\item \emph{but still} people want interfaces to be stable
+\item contracts and projects depend on it
+\item not feasible to refactor large systems
+\item so stability is also very important
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Simple domain-driven versioning}
+\begin{itemize}
+\item there are complex approaches to versioning, with automatic updates
+\item simpler approach often suffices:
+\begin{quote}
+\emph{every published modification yields a new service}
+\end{quote}
+\item make version number part of the service identifier:
+$GetCustomerData1$, $GetCustomerData2$
+\item (or version number might be a parameter, or contextual)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Backwards compatibility}
+\begin{itemize}
+\item relax the rule for bug-fixes
+\item encourage compliance for ``backwards-compatible'' changes
+  \begin{itemize}
+  \item might not be so compatible, eg if SLA changes
+  \item maybe changes in datatypes\ldots
+  \item besides, any bug-fix entails some risk
+  \end{itemize}
+\item require compliance for incompatible changes
+\medskip
+\item actually, bug-fixes might be (even incompatible) changes
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Versioning of datatypes}
+\begin{itemize}
+\item modified services often require modified datatypes
+\item these differences propagate through aggregation
+\item sooner or later, consumers will have to deal with multiple versions of `the same' datatype
+\item three approaches:
+\begin{itemize}
+\item really use different types 
+\item use one common type, with optional values
+\item don't use types, make it generic
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Propagation of datatype versions}
+\begin{flushleft}
+\includegraphics[height=0.8\textheight]{diagrams/versioning}
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Heading{Governance}
+\begin{itemize}
+\item SOA has technical aspects
+\item but it isn't a product: you can't buy it
+\item how can you introduce it?
+\item how can you govern its application?
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Non-technical governance issues}
+\begin{itemize}
+\item \emph{visions, objectives, business case, funding model}
+\begin{quote}
+why are we doing this? how will we pay for it?
+\end{quote}
+\item \emph{reference architecture}
+\begin{quote}
+fundamental decisions: preferred technology, message exchange patterns, metamodel, etc
+\end{quote}
+\item \emph{rules and responsibilities}
+\begin{quote}
+who drives and cares about issues
+\end{quote}
+\item \emph{policies, standards, formats, processes, lifecycles}
+\begin{quote}
+decide and document, in standard notations
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Technical governance issues}
+\begin{itemize}
+\item \emph{documentation}
+\begin{quote}
+important for transparency; promotes non-technical issues
+\end{quote}
+\item \emph{service management}
+\begin{quote}
+repositories and registries for services and contracts
+\end{quote}
+\item \emph{monitoring}
+\begin{quote}
+conformance to policies, meeting SLAs, preparing for withdrawal
+\end{quote}
+\item \emph{change and configuration management}
+\begin{quote}
+the usual tools 
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{SOA step-by-step}
+\begin{itemize}
+\item \emph{understand it}
+\begin{quote}
+what's the benefit? do you have support?
+\end{quote}
+\item \emph{carry out a pilot project}
+\begin{quote}
+try it out, small but not too small; should have some value
+\end{quote}
+\item \emph{second and third projects}
+\begin{quote}
+determine what was specific to pilot; 
+refactor these reference implementations
+\end{quote}
+\item \emph{develop a general strategy}
+\begin{quote}
+establish useful lessons and principles
+\end{quote}
+\end{itemize}
+Don't forget documentation and retrospective reviews, at every step.
+\end{slide}
+
+\begin{slide}
+\Subheading{Establishing SOA: four approaches}
+\begin{itemize}
+\item \emph{developer-driven}, grass-roots
+\begin{quote}
+leads to technological experience; 
+likely to be uncoordinated
+\end{quote}
+\item \emph{business-driven}
+\begin{quote}
+proof of concept helps adoption;
+limited benefit from early projects
+\end{quote}
+\item \emph{IT-driven}
+\begin{quote}
+effective for infrastructure;
+focus on technical aspects
+\end{quote}
+\item \emph{management-driven}, top-down
+\begin{quote}
+coordinated, driven by business priorities;
+expensive, disruptive, risky
+\end{quote}
+\end{itemize}
+Really need a combination of them all.
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}

@@ -1,0 +1,437 @@
+\newif\iffaked \fakedfalse
+\iffaked
+\documentclass{sepslide-soa-faked} % jim has mucked up xdvi settings
+\else
+\documentclass{sepslide-soa}
+\fi
+
+\title{Software architecture}
+\topic{7}{Software architecture}[JungleGreen]
+\indexfile{00-index.pdf}
+
+\begin{document}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+  \Contents
+\end{slide}
+
+\begin{slide}
+  \Heading{Software architecture}
+  \begin{itemize}
+  \item design beyond the level of algorithms and data structures
+  \item as abstract datatypes themselves are design beyond the level
+    of individual statements
+  \item gross organization; global control structure; protocols for
+    communication, synchronization and data access; physical
+    distribution\ldots 
+  \item Garlan and Shaw, 1994, and much subsequent work \\
+    eg architectural \emph{patterns}
+  \item orthogonal to underlying technology: WS, CORBA\ldots
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Vitruvian Triad: firmitas, utilitas, venustas}
+\begin{minipage}{0.6\textwidth} \raggedright
+\vbox to 0.8\textheight{
+\begin{itemize}
+\item Vitruvius: Roman, 1st~century BC
+\item \textit{Ten Books on Architecture}
+\item function (utilitas, `utility')
+\item form (venustas, `beauty')
+\item fabrication (firmitas, `soundness')
+\item architectural principles
+\item retrospective
+\item perhaps a bit idealist % http://graal.ewi.utwente.nl/WhitePapers/Vitruvius/Vitruvius.htm, "Debunking Vitruvius: An Anti-Hero for ICT Architects"
+\end{itemize}
+\vfil}
+\end{minipage}\quad\begin{minipage}{0.35\textwidth}
+\includegraphics[height=0.8\textheight]{diagrams/Vitruvian.eps}
+\end{minipage}
+\end{slide}
+
+\begin{slide}
+\Subheading{The 4+1 View Model of Architecture}
+\begin{quote}
+\includegraphics[width=0.75\textwidth]{diagrams/fourplusone.eps}
+\end{quote}
+(Philippe Kruchten, \textit{IEEE Software} 12(6) 1995)
+\end{slide}
+
+\begin{slide}
+\Subheading{Models and metamodels}
+\includegraphics[height=0.8\textheight]{diagrams/meta.eps}
+\end{slide}
+
+\begin{slide}
+\Subheading{UML metamodel (part)}
+\begin{quote}
+\includegraphics[height=0.8\textheight]{diagrams/01-09-67-fig2-6.eps}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{Components and connectors}
+\begin{itemize}
+\item \emph{components}: sequential, single-threaded \emph{computations}
+\item \emph{connectors}: concurrent, multi-threaded \emph{coordination}
+\item connectors should be first-class entities (cf workflow)
+\item paradigm of system assembly by \emph{superimposition}
+\item communication, coordination, monitoring, control
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Counter-example}
+\begin{quote}
+\includegraphics[width=0.8\textwidth]{diagrams/counter}
+\end{quote}
+User presses button; counter steps; label displays counter value.
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Connectors for coordination}
+\begin{quote}
+\includegraphics[width=0.8\textwidth]{diagrams/connections}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Visual programming}
+\begin{quote}
+\includegraphics[height=0.8\textheight]{diagrams/vpe}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{Product line architectures}
+\begin{itemize}
+\item ``set of programs studied in terms of the common and special properties of the individual members'' (Parnas)
+\item family of related but different products
+\item separate the generic from the specific
+\item eg mobile phones
+\item eg engine management
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{BMW car configurator}
+\begin{quote}
+\includegraphics[height=0.8\textheight]{diagrams/bmw.eps}
+\end{quote}
+(idea from Roberto Lopez on SPL)
+\end{slide}
+
+\begin{slide}
+  \Heading{Client--server}
+  \begin{itemize}
+  \item most common and familiar architecture for distributed systems
+  \item \emph{server} offers a set of services, and waits for service
+    requests
+  \item \emph{client} sends request to server, awaits response
+  \item client is triggering process, initiates synchronization, may
+    be finite; server is reactive, typically runs indefinitely
+  \item multi-tier client--server architectures (eg with client-side
+    proxies and server-side gateways) are \emph{layered}\ldots
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Heading{Layered}
+\begin{center}
+\includegraphics[scale=0.7]{diagrams/layered.eps}
+\end{center}
+\end{slide}
+\begin{slide}
+  \begin{itemize}
+  \item hierarchical organization
+  \item each layer provides a \emph{service} to the layer above, and is a
+    \emph{client} of the layer below
+  \item strictly, only adjacent layers interact (although a layer
+    may import certain services and re-export them); each layer
+    implements a \emph{virtual machine}
+  \item loosely, upper layer may access any lower layer; then layers
+    are translucent rather than opaque
+  \item eg layered communications protocols: OSI seven-layer model
+  \item challenges: often efficiency considerations encourage breaking
+    abstraction boundaries
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Heading{Pipes and filters}
+\begin{center}
+\includegraphics[width=\textwidth]{diagrams/pipes+filters.eps}
+\end{center}
+  \begin{itemize}
+  \item \emph{filter} reads a stream of data from input(s), writes a stream
+    of data to output(s)
+  \item \emph{pipe} connects output of one filter to input of another
+  \end{itemize}
+\end{slide}
+\begin{slide}
+  \begin{itemize}
+  \item filter typically applies a local transformation to the data
+  \item execution usually incremental, on demand: filter may start
+    writing before finishing reading, so filters may compute in
+    parallel
+  \item filters are independent: no shared state, no dependence on
+    characteristics of upstream or downstream neighbours
+  \item specializations: linear \emph{pipelines}, \emph{bounded}
+    buffering, \emph{typed} data, degenerate \emph{batched sequential}
+  \item eg Unix processes; compiler phases; signal processing;
+    systolic arrays
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Heading{Event-based, implicit invocation}
+\begin{center}
+\includegraphics[height=0.8\textheight]{diagrams/event-based.eps}
+\end{center}
+\end{slide}
+\begin{slide}
+  \begin{itemize}
+  \item instead of explicitly invoking a (perhaps remote) procedure,
+    component triggers an \emph{event}
+  \item other components register interest in such events, perhaps by
+    specifying a \emph{callback}
+  \item when event is triggered, \emph{event manager} (or perhaps the
+    triggering component itself) invokes all appropriate registered
+    callbacks
+  \item event source needs no knowledge of event sinks
+  \item challenges: non-determinacy, asynchrony, passing data
+  \item eg database triggers, user interfaces, the \textsc{Observer}
+    pattern, `pub--sub', 
+    EDA, % event-driven architecture
+    CEP % complex event processing
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Message-oriented}
+  \begin{itemize}
+  \item decouples components by interposing \emph{message queues}
+  \item induces \emph{asynchronous communication}: components need not
+    be simultaneously connected
+  \item message consumers often notified by events
+  \item may require (and typically provides) persistent storage for
+    queued messages, improving reliability
+  \item eg MQSeries, MSMQ, JMS, WS-ReliableMessageing
+  \end{itemize}
+\begin{center}
+\includegraphics[width=\textwidth]{diagrams/message-queue.eps}
+\end{center}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Complex event processing}
+  \begin{itemize}
+  \item inference of higher-level events from lower-level
+  \item eg (bells + tux + gown + rice) nearby \maths{\Rightarrow} wedding
+  \item abstraction, correlation, causality, timing
+  \item algorithmic trading, fraud detection, embedded systems
+  \item see \url{www.complexevents.com}
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Heading{Repository}
+\begin{center}
+\includegraphics[width=\textwidth]{diagrams/blackboard.eps}
+\end{center}
+\end{slide}
+\begin{slide}
+  \begin{itemize}
+  \item central \emph{store} maintains global state
+  \item independent \emph{knowledge sources} interact with central store
+  \item KS responds opportunistically when stored state makes it applicable
+  \item (alternatively, actions may be triggered by input types; then
+    more like a database with stored procedures)
+  \item eg Blackboard systems (HEARSAY-II speech recognizer)
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Tuple spaces}
+  \begin{itemize}
+  \item a style of \emph{coordination language}: separate communication from
+    computation
+  \item tuple space is \emph{bag} of tagged data
+  \item tagged data is added, examined and removed by concurrent processes (with
+    locking)
+  \item tuples may represent \emph{tasks} and \emph{results}
+  \item eg \emph{Linda}, \emph{Chemical Abstract Machine},
+    \emph{JavaSpaces}, \emph{Space-Based Architecture}\ldots
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Heading{Peer-to-peer}
+  \begin{itemize}
+  \item clients and servers coincide: \emph{servents}
+  \item typically an expectation that users of services will reciprocate
+  \item minimize centralization, eg of registry, broker or router
+  \item how do servents locate each other? perhaps initial use of
+    registry, then boot-strapping (`hybrid p2p')
+  \item reduces bottlenecks, increases robustness
+  \item \emph{unstructured} vs \emph{structured} overlay networks:
+    arbitrary or deterministic allocation of resources?
+  \item eg file-sharing architectures such as Napster, Gnutella, BitTorrent
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Agent-based}
+\begin{itemize}
+\item autonomous components: no central control
+\item reasoning about environment and interactions
+\item belief vs knowledge: modal and epistemic logic
+\item devolved responsibility: action on behalf of user
+\item maybe mobile
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Interpreter}
+\begin{itemize}
+\item virtual machine in software
+\item pseudo-program \emph{interpreted}
+\item multiple levels of `state': interpreting and interpreted
+\item eg \emph{rule-based system}
+\begin{itemize}
+\item fixed body of \emph{rules}
+\item varying knowledge base of \emph{facts}
+\item interpretation of rules by \emph{inference engine}
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Grid/Cloud/Ubicomp\ldots}
+\begin{itemize}
+\item massively parallel, loosely coupled
+\item ready access to shared resources \\
+  (processor, space, equipment, expertise\ldots)
+\item pay-per-use, on-demand
+\item ``autonomic'' (self-managed)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Grid computing}
+\begin{itemize}
+\item by analogy with electricity grid
+\item pioneered by SETI@Home
+\begin{quote}
+3 million volunteers downloading and analyzing radio telescope data
+\end{quote}
+\item loosely coupled, heterogeneous, geographically dispersed
+\item \emph{virtual organizations}
+\item move computation to data rather than vice versa (eg LHC)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Grid services}
+\begin{itemize}
+\item web services for grid computing
+\item stateful, by necessity (now exploiting WSRF)
+\item \textsc{Factory} pattern for service instantiation
+\item see Open Grid Services Architecture (OGSA) \smallskip\\
+\small
+\url{http://www.globus.org/alliance/publications/papers/ogsa.pdf}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{climate\textit{prediction}.net}
+\begin{minipage}{0.5\linewidth}\raggedright
+\begin{itemize}
+\item users donate computer time
+\item in the style of \texttt{SETI@home}
+\item but jobs run for weeks, not hours
+\item running a climate model from the Met. Office
+\item upload 10Mb of data to servers around the world
+\item build probabilistic model to predict where we'll be in 2050
+\end{itemize}
+\end{minipage}
+\qquad
+\begin{minipage}{0.4\linewidth}
+\begin{flushright}
+\includegraphics[width=\linewidth]{diagrams/cpdn}
+\end{flushright}
+\end{minipage}\hfill
+\end{slide}
+
+\begin{slide}
+\Subheading{eDiamond}
+\begin{minipage}{0.5\linewidth}\raggedright
+\begin{itemize}
+\item national database of mammographic images
+\item applications in training and diagnosis
+\item Oxford, IBM, various hospitals
+\item 12MB per image \ldots
+\item major requirements in security, data location,
+	access times
+\end{itemize}
+\end{minipage}
+\qquad
+\begin{minipage}{0.4\linewidth}
+\begin{flushleft}
+\includegraphics[width=\linewidth]{diagrams/ediam1}
+\bigskip \\
+\includegraphics[width=\linewidth]{diagrams/ediam2}
+\end{flushleft}
+\end{minipage}
+\end{slide}
+
+\begin{slide}
+\Subheading{Cloud computing}
+\begin{itemize}
+\item ``software as a service'', rented not bought
+\item services and data hosted online, available anywhere
+\item data centres, virtualization technologies
+\item `The Cloud' is a metaphor for the internet (eg in network diagrams)
+\item eg Amazon WS, Google Apps, Microsoft Azure
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Map-reduce}
+\begin{itemize}
+\item Google's programming model for cluster computing
+\item inspired by functional programming
+\item works on sets of key/value pairs
+\item \emph{map} over each pair a function giving intermediate k/v pairs
+\item for each key, \emph{reduce} all associated values to some summary
+\item framework handles execution on commodity hardware: partitioning, scheduling, communication, fault-tolerance
+\item many examples: histograms (wordcount, access stats), distributed grep and sort, reverse web links, inverted index\ldots
+\item open-source implementation as Apache Hadoop
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Ubiquitous computing}
+\begin{itemize}
+\item information processing in everyday objects
+\item handheld devices, consumer goods, sensors, RFID\ldots
+\item ad-hoc networks, innovative UIs
+\item ``pervasive computing'', ``Internet of Things'', ``everyware''
+\item see MOB
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}

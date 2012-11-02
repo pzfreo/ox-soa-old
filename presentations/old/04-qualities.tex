@@ -1,0 +1,1259 @@
+\newif\iffaked \fakedfalse
+\iffaked
+\documentclass{sepslide-soa-faked} % jim has mucked up xdvi settings
+\def\colourbullet#1{\item[#1]}
+\else
+\documentclass{sepslide-soa}
+\def\colourbullet#1{\item[\large\textbf{\textcolor{BulletColor}{#1}}]}
+\fi
+\def\pro{\colourbullet{(+)}}
+\def\con{\colourbullet{(--)}}
+
+\title{Service qualities}
+\topic{4}{Service qualities}[ForestGreen]
+\indexfile{00-index.pdf}
+
+\begin{document}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+  \Contents
+\end{slide}
+
+\begin{slide}
+\Heading{Transactions}
+\begin{itemize}
+\item idealized \emph{indivisible activities}
+\item techniques for maintaining the illusion in the face of complexity, concurrency, failures
+\item ideas arose from distributed databases
+\item underlying finance, logistics, manufacturing\ldots
+\item \textit{Transaction Processing: Concepts and Techniques}, Gray and Reuter, 1993 (\url{http://books.google.co.uk/books?id=S_yHERPRZScC})
+% \item \url{http://research.microsoft.com/~gray/WICS_99_TP/}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{ACID properties}
+\begin{itemize}
+\item \emph{atomicity}
+\begin{quote}
+all-or-nothing
+\end{quote}
+\item \emph{consistency}
+\begin{quote}
+integrity-preserving: invariants satisfied
+\end{quote}
+\item \emph{isolation}
+\begin{quote}
+hidden intermediate results:
+multi-user behaviour consistent with single-user mode
+\end{quote}
+\item \emph{durability}
+\begin{quote}
+permanent committed results
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Problems avoided}
+\begin{itemize}
+\item \emph{lost update}
+\begin{quote}
+write committed and acknowledged but then discarded
+\end{quote}
+\item \emph{inconsistent retrieval}
+\begin{quote}
+reads of multiple fields at different times
+\end{quote}
+\item \emph{non-serializability}
+\begin{quote}
+loss of single-user abstraction
+\end{quote}
+\item \emph{conflict}
+\begin{quote}
+eg simultaneous bookings of the same room
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Transaction lifecycle}
+\begin{quote}
+\includegraphics[width=\linewidth]{diagrams/transaction}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{Two-phase commit}
+\begin{itemize}
+\item \emph{initiator} for each transaction, but any participant may abort 
+\item 2PC protocol minimizes unavailability of unilateral abort 
+\item \emph{commit-request} phase
+\begin{quote}
+initiator sends $commit?$ message to all participants,
+who vote either $yes!$ or $no!$
+\end{quote}
+\item \emph{commit} phase
+\begin{quote}
+initiator sends $commit!$ (if unanimously $yes!$)
+or $abort!$ (otherwise)
+to all participants, who act and $acknowledge$;
+then initiator completes transaction
+\end{quote}
+\item some disadvantages (blocking during 2PC; central control) so many variants\ldots
+\item cf Christian wedding ceremony
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Locking}
+\begin{itemize}
+\item \emph{serialization mechanisms} for resources, enforcing unique access
+\item \emph{read locks} (shareable) and \emph{write locks} (exclusive)
+\item may need to wait for locked resource to be released
+\item may result in \emph{deadlock}: two parties, each waiting for the other % to release a lock
+\item lock resources in canonical order (requires foresight), or abort one party (requires rollback)
+\item chance of conflict rises as square of degree of multiplicity, and fourth power of size of transaction
+\item locks of varying granularity: arrange into DAG, lock from root to leaf and release in opposite order
+  (coarser locks reduce overhead, but increase contention)
+\item see Gray, \textit{Notes on DB OSes}, DOI \url{10.1007/3-540-08755-9_9}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Nested transactions}
+\begin{itemize}
+\item expensive transaction fails part-way through
+\item abort wastes much useful work
+\item how to avoid this, while staying acidic?
+\item organize transaction into tree of sub-transactions
+\item when sub-transaction commits, results visible only to parent
+\item if transaction rolls back, so do all its sub-transactions
+\item note: sub-transactions only ACI, not D
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Long-running transactions}
+\begin{itemize}
+\item lasting days, not seconds: \emph{sagas}
+\item too expensive to holds locks,
+   or they're not available (eg for human participants)
+\item optimism+compensation rather than pessimism+roll-back
+\item compensation usually only approximates `undo' \\
+  (cancellation fee, overstocking,\ldots)
+\item misnomer: neither A nor I, and C must take non-I into account
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{WS-Transaction (WSTX)}
+\begin{itemize}
+\item OASIS standard
+\item \emph{WS-Coordination} for managing conversational context
+\item \emph{WS-AtomicTransaction} for short-lived activites with full ACID properties (two-phase commit)
+\item \emph{WS-BusinessActivity} for long-running transactions with compensation
+\end{itemize}
+\end{slide}
+
+%----------------------------------------------------------------------
+
+\begin{slide}
+\Heading{Performance}
+\begin{itemize}
+\item two common reasons for systems not to live up to expectations:
+  performance and security
+\item SOA about heterogeneity, so translations necessary
+\item SOA about distribution, so network latency an issue too
+\item how much do these matter?
+\end{itemize}
+(material from Josuttis, \textit{SOA in Practice})
+\end{slide}
+
+\begin{slide}
+\Subheading{Lifecycle of a service call}
+\begin{flushleft}
+\includegraphics[height=0.8\textheight]{diagrams/call-sequence}
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Subheading{Serializing and deserializing}
+\begin{itemize}
+\item necessary: cannot assume a common representation
+\item formatting, parsing and validation for XML messages take time
+\item increased bandwidth from chatty presentation (factor of 4 to 20 growth)
+\item message-level security aspects have an effect too
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Transmission}
+\begin{itemize}
+\item in-memory call overhead about 100ns, service request about 100ms
+\item tempting to ignore network latency
+\item only possible for coarse-grained interactions
+\item service interface should provide convenient batched/chunked access
+\item (still awkward for client to use, though)
+\item treat automated OO--WS mappings with caution!
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Example: \textsc{Iterator}}
+\begin{itemize}
+  \item Java $Vector$ yields elements one at a time:
+  \begin{quote}
+  \includegraphics[scale=0.75]{diagrams/iteration-java.eps}
+  \end{quote}
+  \item typical distributed service is more careful~--- eg CORBA:
+  \begin{quote}
+  \includegraphics[scale=0.75]{diagrams/iteration-corba.eps}
+  \end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Example: \textsc{Remote Fa\c cade} (Fowler, PoEAA)}
+\begin{itemize}
+\item \emph{provides a coarse-grained fa\c cade on fine-grained objects to improve efficiency over a network}
+  \medskip
+\item batched access to small methods
+\item fine-grained objects have no remote interface; fa\c cade has no business logic
+\item more obscure, more awkward: costs wrt productivity
+\end{itemize}
+  \begin{quote}
+  \includegraphics[scale=0.75]{diagrams/remote-facade.eps}
+  \end{quote}
+% (Martin Fowler, \textit{Patterns of Enterprise Application Architecture})
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Example: \textsc{Data Transfer Object} (Fowler, PoEAA)}
+\begin{itemize}
+\item \emph{an object that carries data between processes in order to reduce the number of method calls}
+%  \medskip
+%\item with \textsc{Remote Fa\c cade}, reduce number of calls, but pack more data into each call
+%\item could use lots of parameters and results---awkward, sometimes impossible
+%\item instead, make a composite DTO
+%\item serialize for transmission
+%\item usually an assembler/disassembler on server side
+\end{itemize}
+  \begin{quote}
+  \includegraphics[scale=0.6]{diagrams/data-transfer-object.eps}
+  \end{quote}
+% (Martin Fowler, \textit{Patterns of Enterprise Application Architecture})
+\end{slide}
+
+\begin{slide}
+\Subheading{Distribution can't be transparent}
+% "A Note on Distributed Computing"
+% Jim Waldo, Geoff Wyant, Ann Wollrath and Sam Kendall, 
+% SMLI TR-94-29, Sun Microsystems Labs Inc, Nov 1994
+\begin{quote} \itshape
+The hard problems in distributed computing concern dealing with
+partial failure and the lack of a central resource manager\ldots
+differences in memory access paradigms between local and distributed
+entities.
+
+Many aspects of robustness can be reflected only at the
+protocol/interface level\ldots An interface design issue has put an
+upper bound on the performance\ldots Part of the definition of a class
+of objects will be the specification of whether those objects are
+meant to be used locally or remotely.
+    \begin{flushright} \upshape
+    Jim Waldo et al, `A Note on Distributed Computing', 1994
+    \end{flushright}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{Processing}
+\begin{itemize}
+\item major reason for slow service is processing time
+\item particularly an issue in the face of scaling
+\item service contract should \emph{service level agreement} (SLA), specifying average response time and call rate
+\item might have to replicate service to achieve throughput
+\item if that doesn't work, need to decouple consumer (eg batching, asynchrony)
+\item as with all optimizations, worth profiling first!
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Performance and reusability}
+\begin{itemize}
+\item trade-off between conflicting forces
+\item latency encourages \emph{coarse-grained} services 
+(send one request rather than several)
+\item processing time encourages \emph{fine-grained} services
+(don't send data that isn't needed)
+\item Josuttis proposes introducing special service for awkward consumer who wants an odd selection of fields
+(so much for reuse!)
+\item could have generic parametrized service, passed a \emph{strategy}; but that has processing implications of its own
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Performance and backwards compatibility}
+\begin{itemize}
+\item another Josuttis war story: CRM system for phone company
+\item calls routed to operator; customer data preloaded to screen
+\item now company introduces an extra $status$ attribute of customer
+(high status customers get routed to more experienced operators)
+\item simply another field returned by service: backwards compatible
+\medskip
+\item customer calls from one number, but may have multiple contracts
+\item so determine status from \emph{total} volume of contracts
+\item but now have to load and process all contracts at run-time! doubled response time
+\item (solution: to compute status overnight; still expensive)
+\item moral: SLA is part of the contract too
+\end{itemize}
+\end{slide}
+
+%----------------------------------------------------------------------
+
+\begin{slide}
+	\Heading{Security}
+Classical notions of security are very relevant to SOA:
+	\begin{itemize}
+\item \emph{authentication} (who are you?)
+\item \emph{authorization} (what may you do?)
+\item \emph{confidentiality} (should you see this?)
+\item \emph{integrity} (may you change this?)
+\item \emph{availability} (are you being fair?)
+\item \emph{accountability} (who is paying?)
+\item \emph{auditability} (what happened?)
+	\end{itemize}
+	--- few services will have no security requirements at all.
+\end{slide}
+
+\begin{slide}
+	\Subheading{\textit{Ad hoc} approaches to security}
+	\begin{itemize}
+	\item just don't think about it
+	\item just don't tell anyone your service is there
+	\item just use firewalls to limit the service to the 
+		organisational intranet
+	\item just roll your own
+	\end{itemize}
+What do you reckon?
+\end{slide}
+
+\begin{slide}
+	\Subheading{Means of security}
+	\begin{itemize}
+	\item identification, authentication schemes
+	\item authorization policies and services
+	\item cryptography: encryption and signatures
+	\item logging, logging services
+	\item policy management
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Basic technologies}
+	\begin{itemize}
+	\item PKI (Public-Key Infrastructure)
+	\item simple tokens
+	\item cookies
+	\item HTTP authentication
+	\item SSL (HTTPS); also IPSec
+	\item XML Encryption, XML Signature
+	\item SOAP Signatures
+	\end{itemize}
+Contrast \emph{message-layer security} with \emph{transport-layer security}.
+\end{slide}
+
+\begin{slide}
+	\Subheading{PKI in a nutshell}
+	\begin{itemize}
+	\item public-key encryption uses \emph{key pairs}
+	\item the encryption is asymmetric: one key \emph{encrypts},
+		the other \emph{decrypts}
+	\item one key published: anyone can encrypt messages for me
+	\item other key private: only I can decrypt
+	\item signatures are dual: only I can sign, anyone can verify
+	\item infeasible to reconstruct private key from public
+	\colourbullet{Q:} how do I verify that a key really belongs to a particular individual?
+	\colourbullet{A:} use a certificate that binds a public key to a name, via a signature from someone I already trust.
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Simple tokens}
+	\begin{itemize}
+	\item used by Google and Amazon Web Service APIs
+	\item \xmlemph{doGoogleSearch(\emph{key}, \ldots)}
+	\item token is set up out-of-band
+	\item well-suited to a REST-style application
+	\pro easy to set up
+	\pro meets the service-provider's security goals 
+			(log/audit, availability management)
+	\con no protection against impersonation
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{HTTP authentication}
+	\begin{itemize}
+	\item \textbf{`basic version'}: username and password are base64
+	encoded and passed in an HTTP header
+	\pro implemented as standard
+	\con not really much better than the simple token
+\medskip
+	\item \textbf{`digest version'}: server sends a \emph{nonce challenge};
+		response incorporates a digest value (MD5 hashes of
+		nonce, username, password, other message data)
+        \pro much better; exposure is limited
+	\con server must choose good nonces to prevent replay attacks;
+		difficult to manage in `session' contexts
+	\con protects secrecy of password, but offers no other confidentiality
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{SSL/HTTPS}
+	\begin{itemize}
+	\item strong authentication of server; 
+		optional strong authentication of client
+	\item strongly encrypted two-way data channel
+	\pro standard and straightforward
+	\pro highly trustworthy
+	\con entirely point-to-point
+	\con no scope for processing by intermediaries
+	        (that includes firewalls and filters)
+	\con protocol-based; no scope for fine-grained authorization
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{XML encryption}
+	\begin{itemize}
+	\item use \xmlemph{<EncryptedData>}, \xmlemph{<CipherData>}
+		to signal and contain the encrypted (base-64) data
+	\item other tags record choice of algorithms, identity of key, etc
+	\item very flexible: decide precisely what to encrypt; 
+		incorporate in your schema!
+        \item good reading: \textit{Why XML Security is Broken} by Peter Gutmann
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example}
+\begin{xml}
+<?xml version='1.0'?>
+  <PaymentInfo xmlns='http://example.org/paymentv2'>
+    <Name>John Smith</Name>
+    <CreditCard Limit='5,000' Currency='USD'>
+      \xmlemph{<Number>4019 2445 0277 5567</Number>}
+      <Issuer>Example Bank</Issuer>
+      <Expiration>04/02</Expiration>
+    </CreditCard>
+  </PaymentInfo>
+\end{xml}
+(Example from XML Encryption Standard, W3C, 10 Dec 2002)
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Encrypt the \xmlfrag{CreditCard} element}
+\begin{xml}
+  <?xml version='1.0'?>
+  <PaymentInfo xmlns='http://example.org/paymentv2'>
+    <Name>John Smith</Name>
+    \xmlemph{<EncryptedData Type='http://www.w3.org/2001/04/xmlenc#Element'
+                           xmlns='http://www.w3.org/2001/04/xmlenc#'>
+      <CipherData>
+        <CipherValue>A23B45C56</CipherValue>
+      </CipherData>
+    </EncryptedData>}
+  </PaymentInfo>
+\end{xml}
+(Eavesdropper can't even distinguish credit card use from money transfer.)
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Encrypt finer-grained elements}
+\begin{xml}
+  <?xml version='1.0'?> 
+  <PaymentInfo xmlns='http://example.org/paymentv2'>
+    <Name>John Smith</Name>
+    \xmlemph{<CreditCard Limit='5,000' Currency='USD'>}
+      <EncryptedData xmlns='http://www.w3.org/2001/04/xmlenc#'
+                      Type='http://www.w3.org/2001/04/xmlenc#Content'>
+        <CipherData>
+          <CipherValue>A23B45C56</CipherValue>
+        </CipherData>
+      </EncryptedData>
+    \xmlemph{</CreditCard>}
+  </PaymentInfo>
+\end{xml}
+Credit card limit in the clear, but other elements (number, issuer, expiration) encrypted.
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Encrypt the content}
+\begin{xml}
+  <?xml version='1.0'?> 
+  <PaymentInfo xmlns='http://example.org/paymentv2'>
+    <Name>John Smith</Name>
+    \xmlemph{<CreditCard Limit='5,000' Currency='USD'>
+      <Number>}
+        <EncryptedData xmlns='http://www.w3.org/2001/04/xmlenc#'
+          Type='http://www.w3.org/2001/04/xmlenc#Content'>
+          <CipherData>
+            <CipherValue>A23B45C56</CipherValue>
+          </CipherData>
+        </EncryptedData>
+      \xmlemph{</Number>
+      <Issuer .../> <Expiration .../>
+    </CreditCard>}
+  </PaymentInfo>
+\end{xml}
+Credit card and \xmlfrag{Number} tag in the clear, but number itself encrypted.
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Or encrypt the whole document}
+\begin{xml}
+  <?xml version='1.0'?> 
+  <EncryptedData xmlns='http://www.w3.org/2001/04/xmlenc#'
+   MimeType='text/xml'>
+    \xmlemph{<CipherData>
+      <CipherValue>A23B45C56</CipherValue>
+    </CipherData>}
+  </EncryptedData>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Additional tags}
+\begin{xml}
+<EncryptedData xmlns='http://www.w3.org/2001/04/xmlenc#'
+        Type='http://www.w3.org/2001/04/xmlenc#Element'/>
+   \xmlemph{<EncryptionMethod
+          Algorithm='http://www.w3.org/2001/04/xmlenc#tripledes-cbc'/>
+   <ds:KeyInfo xmlns:ds='http://www.w3.org/2000/09/xmldsig#'>
+     <ds:KeyName>John Smith</ds:KeyName>
+   </ds:KeyInfo>}
+   <CipherData><CipherValue>DEADBEEF</CipherValue></CipherData>
+</EncryptedData>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+	\Subheading{XML Signature}
+	\begin{itemize}
+	\item more complex than encryption:
+		\begin{itemize}
+		\item intimately tied to representation
+		\item \emph{canonicalization} needed
+		\end{itemize}
+	\item tampering with document, followed by removal of signature,
+		 may be invisible
+	\item so design should take account of what to do with unsigned documents
+	\item \emph{detached signatures} used to allow whole 
+		document to be signed
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example of detached signature}
+\begin{xml}
+ <Signature Id="MyFirstSignature"
+      xmlns="http://www.w3.org/2000/09/xmldsig\#"> 
+  <SignedInfo> 
+   <CanonicalizationMethod
+       Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/> 
+   <SignatureMethod
+       Algorithm="http://www.w3.org/2000/09/xmldsig\#dsa-sha1"/> 
+   <Reference
+       URI="http://www.w3.org/TR/2000/REC-xhtml1-20000126/"> 
+     <Transforms> <Transform 
+         Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+     </Transforms> 
+     <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig\#sha1"/> 
+     <DigestValue>\xmlemph{j6lwx3rvEPO0vKtMup4NbeVu8nk=}</DigestValue> 
+   </Reference> 
+  </SignedInfo> 
+\end{xml}\end{slide}
+\begin{slide}\begin{xml}
+  <SignatureValue>\xmlemph{MC0CFFrVLtRlk=...}</SignatureValue> 
+  <KeyInfo> 
+    <KeyValue>
+      <DSAKeyValue> 
+        <P>...</P><Q>...</Q><G>...</G><Y>...</Y> 
+      </DSAKeyValue> 
+    </KeyValue> 
+  </KeyInfo> 
+</Signature>
+\end{xml}
+(From \textit{XML Signature}, W3C Recommendation 12 February 2002)
+\end{slide}
+
+\begin{slide}
+\Subheading{Web Services Security Roadmap}
+\fboxsep=3bp
+\def\block#1#2{\fbox{\hbox to #1{\hfil#2\strut\hfil}}}
+\begin{center}
+\mbox{\hbox to 316bp{%
+\block{120bp}{WS-SecureConversation}\hfil
+\block{72bp}{WS-Federation}\hfil
+\block{100bp}{WS-Authorization}%
+}} \\
+\mbox{\hbox to 316bp{%
+\block{120bp}{WS-Policy}\hfil
+\block{72bp}{WS-Trust}\hfil
+\block{100bp}{WS-Privacy}%
+}} \\
+\block{310bp}{WS-Security} \\ % 4*72bp-2*fboxsep
+\block{310bp}{SOAP Foundation}
+\end{center}
+From IBM and Microsoft; see
+\url{www.ibm.com/developerworks/library/specification/ws-secmap/}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Documents}
+(Varying levels of maturity\ldots)
+	\begin{description} 
+
+	\item[WS-Security:] how to attach signature and encryption
+	headers to SOAP messages; how to attach security tokens
+	to messages 
+(OASIS~standard)
+
+	\item[WS-Policy:] capabilities and constraints of the security
+	(and other business) policies on intermediaries and endpoints
+(OASIS~submission)
+
+	\item[WS-Trust:] framework for trust models that enables Web
+	services to interoperate securely; introduces notion of a
+	\emph{Security Token Service}
+(OASIS~standard)
+
+	\item[WS-Privacy:] model for how Web services and requesters
+	state privacy preferences and organisational privacy practice
+	statements
+(vapourware)
+	\end{description}
+\end{slide}
+\begin{slide}
+	\begin{description}
+
+	\item[WS-SecureConversation:] how to manage and authenticate
+	message exchanges between parties, including security context
+	exchange and establishing and deriving session keys~---
+	long-running interactions, in contrast to those enabled by
+	WS-Security 
+(OASIS~standard)
+
+	\item[WS-Federation:]
+	how to manage and broker the trust relationships in a
+	heterogeneous federated environment including support for
+	federated identities
+(just~a~draft)
+
+	\item[WS-Authorization:] how to manage authorization data and
+	authorization policies
+(vapourware)
+
+	\end{description}
+	The roadmap also includes a number of instructive scenarios.
+\end{slide}
+
+\begin{slide}
+	\Subheading{Terminology}
+	\begin{itemize}
+	\item security \emph{token}, signed or unsigned
+	\item \emph{subject}: person, application, activity 
+	\item \emph{claim}: made about the subject by the subject or another party
+
+	\item \emph{proof-of-possession} of token or set of claims
+	\item \emph{web service endpoint policy} for required claims
+	% \item claim requirements --- policy applied to messages
+	\item \emph{actor}: intermediary or endpoint (URI)
+			(not user or client software)
+	\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\Subheading{Web Services trust model}
+
+	\begin{itemize} 
+	\item service may have a \emph{policy}, requiring
+	requester to prove set of claims (e.g., name, key,
+	permission, capability, etc.)
+
+	\item requester can prove required
+	claims by associating security tokens with messages
+
+	\item when requester cannot prove required claims directly, it
+	(or its agent) can try to do so by
+        by contacting other \emph{security token services}~---
+ which may in turn have their own policies
+
+	\item security token services \emph{broker trust} between
+          different trust domains by issuing security tokens
+\end{itemize}
+\end{slide}
+\begin{slide}
+\begin{center}
+	\includegraphics[width=\textwidth]{diagrams/ws-security-model}
+\end{center}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Push vs pull}
+\includegraphics[width=\textwidth]{diagrams/push-pull}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Distributed decision-making}
+\begin{flushleft}
+\includegraphics[height=0.8\textheight]{diagrams/pep-pdp}
+\end{flushleft}
+PEP asks PDP for a decision. 
+\end{slide}
+
+\begin{slide}
+  \Subheading{Consequences}
+\begin{itemize}
+  \item `difficult' security decisions taken in one place
+  \item resource can be in a separate domain from security service
+  \item scalable in the number of users or resources
+  \item push and pull models have different scalability characteristics
+  \item scope for multiple security services, too (but inconsistency?)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}
+
+\begin{slide}
+   	\Subheading{WS-Security}
+	\begin{itemize}
+	\item name is unfortunate!
+	\item describes a \emph{message security model}
+	\item in particular, describes how to use 
+		XML encryption and signing in SOAP
+
+	\item ``The message receiver SHOULD reject a message with
+	invalid signature, missing or inappropriate claims as it is an
+	unauthorized (or malformed) message.''
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Signing in SOAP}
+\begin{xml}
+<?xml version="1.0" encoding="utf-8"?>
+<S:Envelope xmlns:S="http://www.w3.org/2001/12/soap-envelope"
+            \xmlemph{xmlns:ds="http://www.w3.org/2000/09/xmldsig#"}>
+  <S:Header>
+    <m:path xmlns:m="http://schemas.xmlsoap.org/rp/">
+      <m:action>http://fabrikam123.com/getQuote</m:action>
+      <m:to>http://fabrikam123.com/stocks</m:to>
+      <m:id>uuid:84b9f5d0-33fb-4a81-b02b-5b760641c1d6</m:id>
+    </m:path>
+    \xmlemph{<wsse:Security
+      xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/04/secext">}
+      <wsse:UsernameToken Id="\xmlemph{MyID}">
+        <wsse:Username>Zoe</wsse:Username>
+      </wsse:UsernameToken>
+\end{xml}\end{slide}
+\begin{slide}\begin{xml}
+      <ds:Signature>
+        <ds:SignedInfo>
+          <ds:CanonicalizationMethod Algorithm =
+            "http://www.w3.org/2001/10/xml-exc-c14n#"/>
+          <ds:SignatureMethod Algorithm =
+            "http://www.w3.org/2000/09/xmldsig#hmac-sha1"/>
+          <ds:Reference URI="\xmlemph{#MsgBody}">
+            <ds:DigestMethod Algorithm =
+              "http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>LyLsF0Pi4wPU...</ds:DigestValue>
+          </ds:Reference>
+        </ds:SignedInfo>
+\end{xml}\end{slide}
+\begin{slide}\begin{xml}
+        <ds:SignatureValue>DJbchm5gK...</ds:SignatureValue>
+        <ds:KeyInfo>
+          <wsse:SecurityTokenReference>
+            \xmlemph{<wsse:Reference URI="#MyID"/>}
+          </wsse:SecurityTokenReference>
+        </ds:KeyInfo>
+      </ds:Signature>
+    \xmlemph{</wsse:Security>}
+  </S:Header>
+  \xmlemph{<S:Body Id="MsgBody">}
+    \xmlemph{<tru:StockSymbol xmlns:tru="http://fabrikam123.com/payloads">
+        QQQ}
+    \xmlemph{</tru:StockSymbol>}
+  \xmlemph{</S:Body>}
+</S:Envelope>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Tag summary}
+	\begin{itemize}
+	\item \xmlfrag{Security} element in SOAP headers;  may be several,
+		for different actors
+	\item \xmlfrag{UsernameToken} records usernames and (optionally) passwords
+	\item \xmlfrag{BinarySecurityToken} or \xmlfrag{SecurityTokenReference}
+		provide for inclusion of/pointing to a security token
+	\item \xmlfrag{Reference} of element being signed: could be in body or
+		header
+	\item \xmlfrag{ds:Signature} XML Signature element; may be
+	cross-referenced with security tokens
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example: UsernameToken}
+\begin{xml}
+<S:Envelope 
+  xmlns:S="http://www.w3.org/2001/12/soap-envelope"
+  xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/04/secext">
+  <S:Header>
+    ...
+    <wsse:Security>
+      <wsse:UsernameToken>
+        <wsse:Username>Zoe</wsse:Username>
+        <wsse:Password>ILoveDogs</wsse:Password>
+      </wsse:UsernameToken>
+    </wsse:Security>
+    ...
+  </S:Header>
+  ...
+</S:Envelope>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example: BinarySecurityToken}
+\begin{xml}
+<wsse:BinarySecurityToken 
+  xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/04/secext" 
+  Id="myToken"
+  ValueType="x:MyType" xmlns:x="http://fabrikam123.com/x"
+  EncodingType="wsse:Base64Binary">
+  MIIEZzCCA9CgAwIBAgIQEmtJZc0...
+</wsse:BinarySecurityToken>
+\end{xml}
+\end{slide}
+
+%\begin{slide}
+%	\Subheading{XML Encryption}
+%	May be applied to header or body elements.  
+%
+%	Namespace: \uri{http://www.w3.org/2001/04/xmlenc\#}
+%\end{slide}
+
+%\begin{slide}
+%	\Subheading{WS-Trust}
+%	Standard messages for
+%	\begin{itemize}
+%	\item requesting security tokens
+%	\item returning security tokens
+%	\item token lifetime and renewal management
+%	\item challenge-response protocols
+%	\end{itemize}
+%\end{slide}
+
+\begin{slide}
+	\Subheading{WS-Policy}
+	A number of complementary / competing / overlapping
+	standards consider how to
+	\begin{itemize}
+	\item describe policy
+	\item reach decisions based on policies
+	\item document credentials and decisions
+	\item etc.
+	\end{itemize}
+	All in XML, naturally --- attach to messages, attach to
+	service descriptions, etc. 
+\bigskip \\
+Good reference: \textit{Understanding WS-Policy}, Aaron Skonnard, August 2003.
+\url{http://msdn.microsoft.com/en-us/library/ms996497.aspx}
+\end{slide}
+
+\begin{slide}	
+	\Subheading{Taxonomy}
+\begin{itemize}
+\item \emph{Policy}: an informal abstraction; the set of information
+  that is being expressed as policy assertions
+\item \emph{Policy Assertion}: an individual preference,
+requirement, capability or other property
+\item \emph{Policy Expression}: an XML Infoset representation of one or
+more policy assertions
+\item \emph{Policy Subject}: an entity (e.g., an endpoint, object, or
+resource) to which a policy expression can be bound
+\item \emph{Policy Attachment}: the mechanism for associating policy
+expressions with one or more subjects
+\end{itemize}
+For expressing policy; not necessarily giving an evaluation
+or enforcement mechanism.
+\end{slide}
+
+\begin{slide}
+\Subheading{Example from WS-SecurityPolicy}
+\begin{xml}
+<wsp:Policy xmlns:wsse="..." xmlns:wsp="...">
+  <wsp:\xmlemph{ExactlyOne}>
+    <wsse:SecurityToken wsp:Usage="wsp:Required" wsp:Preference="100">
+      <wsse:TokenType>wsse:Kerberosv5TGT</wsse:TokenType>
+    </wsse:SecurityToken>
+    <wsse:SecurityToken wsp:Usage="wsp:Required" wsp:Preference="1">
+      <wsse:TokenType>wsse:X509v3</wsse:TokenType>
+    </wsse:SecurityToken>
+  </wsp:ExactlyOne>
+</wsp:Policy>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+	\Subheading{WS-Policy operators}
+
+	\xmlemph{<wsp:ExactlyOne>}
+	\xmlemph{<wsp:OneOrMore>}
+
+	\xmlemph{<wsp:All>}, equivalently \xmlemph{<wsp:Policy>}
+
+	\Subheading{WS-Policy Usage Assertions}
+
+	\xmlemph{<wsp:Required>} \xmlemph{<wsp:Rejected>}
+	\xmlemph{<wsp:Optional>} \xmlemph{<wsp:Observed>}
+	\xmlemph{<wsp:Ignored>}
+	
+\xmlemph{<wsp:Preference>} biases choice among alternatives.
+
+Augmented by policy assertions from WS-PolicyAssertions
+
+
+\end{slide}
+
+
+\begin{slide}
+	\Subheading{WS-SecurityPolicy}
+	Extensions to WS-Policy in order to express assertions on:
+	\begin{itemize}
+	\item security tokens (\xmlemph{wsse:SecurityToken})
+	\item integrity (\xmlemph{wsse:Integrity})
+	\item confidentiality (\xmlemph{wsse:Confidentiality})
+	\item visibility, message age, security headers etc
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example}
+\begin{xml}
+<wsse:Integrity wsp:Usage="wsp:Required">
+  <wsse:Algorithm  Type="wsse:AlgCanonicalization"
+    URI="http://www.w3.org/Signature/Drafts/xml-exc-c14n"/>
+  <wsse:Algorithm Type="wsse:AlgSignature"
+    URI=" http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+  <wsse:SecurityToken>
+    <wsse:TokenType>wsse:X509v3</wsse:TokenType>
+  </wsse:SecurityToken>
+  <MessageParts 
+    Dialect="http://schemas.xmlsoap.org/2002/12/wsse#soap">
+    \xmlemph{S:Body some-URI:HeaderBlockElementName}
+  </MessageParts>
+</wsse:Integrity>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subheading{More examples}
+%Policy on message age:
+%\begin{xml}
+%<wsse:MessageAge wsse:Usage="wsp:Required" Age="3600"/>
+%\end{xml}
+
+Policy on encodings:
+\begin{xml}
+<wsp:TextEncoding wsp:Usage="wsp:Required" Encoding="iso-8859-5"/>
+\end{xml}
+
+Policy on number of security headers in SOAP message:
+\begin{xml}
+<wsp:MessagePredicate wsp:Usage="wsp:Required">
+     count(wsp:GetHeader(.)/wsse:Security) = 1
+</wsp:MessagePredicate>
+\end{xml}
+
+Compound policy:
+\begin{xml}
+<wsp:All>
+  <wsp:TextEncoding wsp:Usage="wsp:Required" Encoding="iso-8859-5"/>
+  <wsp:MessagePredicate wsp:Usage="wsp:Required" .../>
+</wsp:All>
+\end{xml}
+\small
+(from \url{http://www.developer.com/design/article.php/10925_2171031_2})
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}
+
+\begin{slide}
+	\Subheading{SAML: Security Assertion Markup Language}
+
+	\begin{itemize}
+	\item assertion language to allow `issuers' to make assertions about
+	   \begin{itemize}
+	   \item authentication: The specified subject was
+	   authenticated by a particular means at a particular time.
+
+	   \item authorization: A request to allow the specified
+	   subject to access the specified resource has been granted
+	   or denied.
+
+	   \item attribute: The specified subject is associated with the
+	   supplied attributes. 
+	   \end{itemize}
+	\item supported by a request--response protocol for communicating
+		with SAML authorities
+
+	\item assertions, requests, and responses may be signed using
+	XML Signature.  
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	Thus, gives a way to write architecture/application-neutral
+	statements like
+	\begin{itemize}
+	\item \emph{user \keyword{Bob} was authenticated to \keyword{this server}
+		at \keyword{date/time} by means of a password}
+	\item \emph{user \keyword{Bob} was authenticated to \keyword{this server}
+		at \keyword{date/time} by demonstrating ownership of
+		the private key matching \keyword{public key}}
+	\item \emph{user \keyword{Alice} has a credit limit of \keyword{this much}
+		at \keyword{date/time}}
+	\item \emph{user \keyword{Charlotte} has sysadmin privilege
+		from \keyword{date/time} to \keyword{date/time}}
+	\end{itemize}
+
+	BUT the semantics (and detailed vocabulary) must be defined
+	elsewhere.
+\end{slide}
+\begin{slide}
+
+	Separate notions of 
+	\begin{itemize}	
+	\item \emph{Policy Decision Point} (PDP) and 
+	\item \emph{Policy Enforcement Point} (PEP).
+	\end{itemize}
+
+	WS-SecurityPolicy has elements to carry SAML assertions---
+	\xmlfrag{<wsse:SAMLAssertion>} as one of the possible security
+	token types.
+
+	Various usage scenarios.
+
+\end{slide}
+
+\begin{slide}
+	\Subheading{XACML: eXtensible Access Control Markup Language}
+
+	Policy Administration Point (PAP) 
+
+	Policy Information Point (PIP)
+
+	Policy: set of rules, rule combining algorithm
+
+	Arriving at, and propagating the kind of authorization decisions
+	that might be recorded in a SAML assertion.
+
+\end{slide}
+\begin{slide}
+	\Subheading{XACML Requirements}
+
+	\begin{itemize}
+\item To provide a method for combining individual rules and policies into
+a single policy set that applies to a particular decision
+request.
+
+\item To provide a method for dealing with multiple subjects acting in
+different capacities. 
+
+\item To provide a method for basing an authorization decision on
+attributes of the subject and  resource. 
+
+\item To provide a set of logical and mathematical operators on attributes
+of the subject, resource and environment. 
+
+\item To provide a method for handling a distributed set of policy
+components, while abstracting the method for locating, retrieving
+and authenticating the policy components. 
+\item etc.
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\begin{center}
+	\includegraphics[width=0.7\linewidth]{xacml-process}
+	\end{center}
+\end{slide}
+
+\begin{slide}
+	\Example
+
+The Standard
+{\footnotesize\uri{http://www.oasis-open.org/committees/download.php/2406/oasis-xacml-1.0.pdf}}
+offers a many-paged example based on fine-grained access to medical
+records.
+
+\medskip
+
+70 lines of XML are used to describe a context 
+in which a physician wishes to read the date of birth from a
+particular patient record.
+
+\medskip
+
+The example supposes that the following rules have been created by one
+or more PAPs.  \emph{Each} is expressed in 50--100 lines of XML.
+\end{slide}
+
+\begin{slide}
+\begin{itemize}
+\item Rule 1: A person, identified by his or her patient number, may read any record for which he
+or she is the designated patient. 
+
+\item Rule 2: A person may read any record for which he or she is the
+designated parent or guardian, and for which the patient is under
+16~years of age.
+
+\item Rule 3: A physician may write to any medical element for which
+he or she is the designated primary care physician, provided an email
+is sent to the patient.
+
+\item Rule 4: An administrator shall not be permitted to read or write
+to medical elements of a  patient record. 
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+	\Subheading{Discussion}
+
+	The intention: fine-grained authorization management
+	over heterogeneous domains.
+
+	Will it ever work?  How will it work in practice?
+
+	How are we to validate these (formal expressions of) rules?
+\end{slide}
+
+
+\begin{slide}
+  \heading{Architecture and Security}
+
+Role and purpose
+
+\includegraphics[width=\linewidth]{secuirty-bigpic}
+
+\end{slide}
+
+
+\begin{slide}
+  \Example[Shibboleth]
+
+Concepts:
+\begin{itemize}
+  \item Identity Provider
+  \item Service Provider
+  \item Where are you from?
+  \item Federations
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+  \Subheading{Shibboleth Goals}
+
+\begin{itemize}
+  \item scalability
+  \item single sign-on
+  \item authentication near user
+  \item authorization near resource
+  \item user's home manages their attribuutes
+  \item resource takes decision based on attributes: user may be 
+    anonymous
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+	\begin{center}
+  \includegraphics[width=0.7\linewidth]{shibboleth}
+%  \includegraphics[width=0.7\linewidth]{alt-shib-figure}
+	\end{center}
+\end{slide}
+
+\begin{slide}
+1. User attempts to access Shibboleth-protected resource on SP site
+   application server.
+
+2, 3, 4. User is redirected to a Where Are You From (WAYF) server,
+where the user indicates their home site (IdP).
+
+5. User is redirected to the Handle Service at their IdP.
+
+6, 7 User authenticates at their IdP, using local credentials.
+
+\newslide
+
+8. Handle service generates unique ID (Handle) and redirects user to
+   Service Provider site's Assertion Consumer Service (ACS). ACS
+   validates the supplied assertion, creates a session, and transfers
+   to Attribute Requestor (AR).
+
+9, 10. AR uses the Handle to request attributes from the IdP site's
+Attribute Authority. The attribute authority responds with an
+attribute assertion subject to attribute release policies; SP site
+uses attributes for access control and other application-level
+decisions.
+
+{\tiny Copyright \copyright 1996-2005 Internet2}
+\end{slide}
+
+\begin{slide}
+  \Subheading{Brokered trust?}
+
+In a multi-level service assembly, there are two significant options:
+\begin{itemize}
+\item each service interprets the caller's security tokens, and if the
+  caller is authorized, \emph{calls the subordinate services with its
+  own security token(s)}.
+\item each service simply passes on the caller's security tokens to
+  the subordinate services; `leaf nodes' must determine if the caller
+  is authorized to use the service.
+\end{itemize}
+
+\textcolor{QuestionColor}{Which is preferable?  In which
+  circumstances?}
+
+\end{slide}
+

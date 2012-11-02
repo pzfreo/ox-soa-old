@@ -1,0 +1,621 @@
+\newif\iffaked \fakedfalse
+\iffaked
+\documentclass{sepslide-soa-faked} % jim has mucked up xdvi settings
+\else
+\documentclass{sepslide-soa}
+\fi
+
+\title{Composition}
+\topic{5}{Composition}[Green]
+\indexfile{00-index.pdf}
+
+\begin{document}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+  \Contents
+\end{slide}
+
+\begin{slide}
+\Heading{Composition of services}
+\begin{itemize}
+\item services provide \emph{platform- and language-independent access}
+  to \emph{software components}
+\item but these components are \emph{isolated}: they need to be
+  \emph{assembled} into \emph{service-oriented architectures}
+\item ideally, they should be recursively \emph{composable} to form
+  composite services in their own right
+\item \emph{workflow} languages for scripting or `glue' between individual services
+\item beyond mere \emph{business protocol specifications} like RosettaNet,
+  which are essentially paper specifications so can't be automated and
+  won't scale  
+\item BPMN, WSCI, WSFL, XLANG, BPEL\ldots
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Workflow}
+\begin{itemize}
+\item \emph{individual} services can be represented in WSDL
+\item but how should they be \emph{combined}?
+\item textual documentation can explain the protocol;
+  traditional programming language can implement it~---
+  but then the business process is \emph{embedded in code}
+\item the process has value in its own right, and should be recorded
+separately as a \emph{workflow}
+\item can then be stored, manipulated, and modified independently of 
+individual activities
+\item `don't let your business's widget-making knowledge walk out of the
+door each evening in the chief widget-maker's head' (Virdell)
+% Margie Virdell, "Business processes and workflow in the Web Services world", IBM developerWorks, January 2003
+\item agility is the key here (c.f. Sessions on MiG-15 vs F-86)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Removal of dependencies (Leymann and Roller)}
+% F. Leymann and D. Roller, "Workflow-based applications"
+% IBM Systems Journal 36(1) 1997
+
+DBMS provides independence from data \emph{representation}; \\
+workflow provides independence from control or data \emph{flow}.
+\begin{center} 
+\includegraphics[height=0.7\textheight]{diagrams/applicn-architecture}
+\end{center}
+\end{slide}
+
+\begin{slide}
+\Subheading{An architectural analogy}
+\begin{center} 
+\includegraphics[width=\textwidth]{diagrams/plumbing}
+\end{center}
+\emph{exogenous connectivity}
+\end{slide}
+
+\begin{slide}
+\Subheading{Historical precedents: EAI, WfMS}
+\begin{itemize}
+\item \emph{enterprise application integration} (EAI)
+\item resolving heterogeneity, typically via asynchronous \emph{message
+    brokers} 
+\item \emph{workflow management systems} (WfMS): automating interactions
+\item origins in \emph{office automation}: admin processes
+\item \emph{production workflows}: from information between people to
+  integration of systems 
+\item often associated with \emph{business process re-engineering}:
+  assessment, analysis, modelling, definition, implementation
+\item service composition = EAI + WfMS
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Sequencing}
+\begin{itemize}
+\item control-dependencies between activities: \\
+  predecessor must finish before successor can start
+\item data-dependencies between activities: \\
+  output from predecessor is (transformed into) input to successor
+\item conditional constructions: internal or external choice
+\item time-out constructs
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Exception handling}
+\begin{itemize}
+\item consequences of exceptional conditions
+\item recovery sequences
+\item must return system to consistent state, wherever exception occurred
+\item at least as important as the `normal' cases
+\item typically expands model by factor of 4 or 5!
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Orchestration and choreography}
+\begin{itemize}
+\item \emph{orchestration} 
+\begin{itemize}
+\item describes procedure
+\item instructs participants globally
+\item imperative; centralized
+\item typically deterministic: `must'
+\end{itemize}
+\item \emph{choreography} 
+\begin{itemize}
+\item describes protocol
+\item constraints on interaction, but participants act locally
+\item declarative; no `current state'
+\item usually non-deterministic: `may'
+\end{itemize}
+\item by analogy: orchestra has conductor, ballet does not
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Compensation}
+\begin{itemize}
+\item business processes are usually \emph{long-running transactions}
+\item want to maintain ACID properties (atomicity, consistency, isolation,
+durability) 
+\item \ldots but cannot afford to use locking to achieve these
+\item therefore might have to compensate (as much as possible) for
+cancelled transactions 
+\item compensations usually assume forward transaction completed successfully
+  (no `partial compensations')
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Correlation}
+\begin{itemize}
+\item business process typically involves some \emph{conversation} between
+components 
+\item therefore the same instance of a component should be involved
+throughout the process (at least logically)
+\item in the OO world, this is handled by \emph{object references}
+\item but components should maintain no persistent state
+\item so subsequent messages in a workflow should be \emph{correlated}
+\item `customer reference number' or `case number'
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Polarity}
+\begin{itemize}
+\item WSDL operations are of four kinds:
+  \begin{description}
+  \item[one-way:] port receives \xmlfrag{<input>} messages only
+  \item[request-response:] port receives \xmlfrag{<input>} then 
+    sends~\rlap{\xmlfrag{<output>}}
+  \item[notification:] port sends \xmlfrag{<output>} message only
+  \item[solicit-response:] port sends \xmlfrag{<output>} then
+    receives~\rlap{\xmlfrag{<input>}}
+  \end{description}
+\item one-way and request-response operations are \emph{incoming},
+  solicit-response and notification operations \emph{outgoing}
+\item workflow specification will match up ports; obviously, matched ports
+  must have operations of opposing \emph{polarities}
+\item WSDL does not restrict port types to aggregating operations of
+  a common polarity;
+  XLANG spec argues that \emph{allowing a mixture of incoming and
+    outgoing operation types in a port type is highly undesirable}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Workflow management}
+\begin{itemize}
+\item if workflow model is sufficiently \emph{precise and complete},
+   then \emph{workflow engine} can execute process description automatically
+\item workflow model dictates ordering, dataflow, compensation,\rlap{~etc}
+\item well-established R\&D area (\emph{Workflow Management Coalition}
+  (\url{http://www.wfmc.org/}) since early 1990s; OMG \emph{Workflow
+    Management Facility Specification} 
+  since 1996, version~1.2 in 2000)
+\item eg \emph{megaprogramming}:  module assembly (Wiederhold, 1992)
+\item now being assimilated into SOA worldview
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{WS-related standards for workflow}
+\begin{itemize}
+\item \emph{Web Services Flow Language} (WSFL) (IBM; 2001)
+\item \emph{XLANG} (Microsoft; 2001)
+\item \emph{Web Services Choreography Interface} (WSCI)
+(BEA, Intalio, SAP, Sun; 2002)
+\item combined into \emph{Business Process Execution Language for Web
+    Services} (BPEL4WS, or just BPEL) (IBM, Microsoft, BEA, SAP, Siebel;
+  2003), to be submitted to OASIS
+\item various ad-hoc and vendor-specific graphical notations; OMG standard \emph{Business Process Modeling Notation} (BPMN) an alternative
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{UML activity diagrams for recording workflow}
+\begin{itemize}
+\item activity diagrams illustrate \emph{time-} or \emph{data-dependencies}
+  between \emph{activities}
+\item based on Petri nets
+\item some similarities with flowcharts,
+  but are also well-suited to presenting \emph{parallel} sequences of
+  activities
+\item mainly used in UML to document complex operations
+\item \ldots but also useful for expressing \emph{business
+  workflows} 
+\item approach based on Fowler, \textit{UML Distilled}
+\item (there's now a draft UML profile for BPEL)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example activity diagram (after UML spec)}
+
+\centerline{\includegraphics[width=\textwidth]{diagrams/coffee}}
+\end{slide}
+
+\begin{slide}
+\Subheading{Activities}
+\begin{itemize}
+\item an atomic action, eg execution of an operation
+\item with duration, and with possible interruption points
+\item denoted by an oval: straight top and bottom, round ends
+\end{itemize}
+  \bigskip
+  \centerline{\includegraphics[scale=1.2]{diagrams/activity1}} 
+\end{slide}
+
+\begin{slide}
+\Subheading{Transitions}
+\begin{itemize}
+\item movement from one activity to another
+\item normally occurs when all the actions of an activity have been
+  completed
+\item may occur when an event triggers the exit from a particular activity
+\item indicated by an arrow between activities
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Decision points}
+\begin{itemize}
+\item a point where the exit
+  transition from an activity can branch in alternative directions
+  depending on a condition
+\end{itemize}
+  \bigskip
+  \centerline{\includegraphics[scale=0.7]{diagrams/branch}}
+\end{slide}
+
+\begin{slide}
+\Subheading{Synchronization bars}
+
+  \begin{minipage}{0.6\textwidth} \raggedright
+  \begin{itemize}
+  \item split a transition into multiple
+    paths, and combine multiple paths into a single transition
+  \item \emph{fork} vertices have a single incoming transition
+  \item \emph{join} vertices have a single outgoing transition
+  \item in general, synchronization bar may have multiple incoming and
+    outgoing transitions
+  \item forks and joins should match up (`token balance')
+  \end{itemize}
+  \end{minipage}
+  \qquad
+  \begin{minipage}{0.3\textwidth}
+  \includegraphics[scale=0.6]{diagrams/synchronization}
+  \end{minipage}
+\end{slide}
+
+\begin{slide}
+\Subheading{Start and end states}
+\begin{itemize}
+\item \emph{start state} is the entry point to a flow
+\item only one start state allowed 
+  \bigskip
+  \centerline{\includegraphics[scale=0.7]{diagrams/startState}}
+\item end states indicate the exit point from a flow
+\item multiple end states are allowed
+  \bigskip
+  \centerline{\includegraphics[scale=0.7]{diagrams/finishState}}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Swimlanes}
+\begin{itemize}
+\item partition an activity diagram into the responsibilities
+  of different entities
+\end{itemize}
+  \bigskip
+  \centerline{\includegraphics[height=0.7\textheight]{diagrams/swimlanes}}
+\end{slide}
+
+\begin{slide}
+\Subheading{Dataflow}
+\begin{itemize}
+\item transitions between activities represent \emph{control dependencies}: one
+activity must complete before another can start
+\item workflows also have \emph{data dependencies}: one activity produces a
+result that another requires
+\item UML activity diagrams allow \emph{object flow} as well as
+\emph{control flow}
+\item dependent data is shown as an object icon 
+(rectangle with underlined name and type)
+\item \emph{dependencies} shown as dashed arrows from generating activity to
+object, and from object to consuming activity(s)
+\item same object may occur multiple times in an activity diagram,
+  typically in different \emph{states} (shown in square brackets after
+  object name)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example of object flow}
+
+\centerline{\includegraphics[height=0.9\textheight]{diagrams/objectflow-assignment}}
+\end{slide}
+
+\begin{slide}
+\Heading{Business Process Modelling Notation (BPMN)}
+\begin{itemize}
+\item graphical notation specifically for workflow
+\item developed by Business Process Management Initiative, now part of OMG
+\item currently v1.1; working on v2.0 (two different ones!)
+\item spec also defines mapping to BPEL
+\item my student Peter Wong translating to CSP
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{BPMN constructs}
+Very briefly:
+\begin{itemize}
+\item flow objects
+\begin{itemize}
+\item event (start, end)
+\item activity
+\item gateway (branching)
+\end{itemize}
+\item connecting objects
+\begin{itemize}
+\item sequence flow (control)
+\item message flow (data)
+% \item association
+\end{itemize}
+\item swimlanes
+% \item artifacts
+% \begin{itemize}
+\item data object
+% \item group
+% \item annotation
+% \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{BPMN example}
+\begin{flushleft}
+\includegraphics[width=\textwidth]{diagrams/airline.eps}
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Heading{WSCI}
+\begin{itemize}
+\item BEA Systems, Intalio, Sun, SAP
+\item describes the flow of messages exchanged with a web service 
+\item expressed in terms of temporal and logical dependencies between
+messages
+\item features sequencing rules, correlation, exception handling and
+transactions 
+\item allows client to understand how to interact with service, and to
+anticipate its behaviour
+\item `operating manual' for a web service
+\item not an executable workflow language
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Questions answered by WSCI}
+\begin{itemize}
+\item can messages be sent and/or received in any order?
+\item what rules govern the sequencing of messages?
+\item what is the relationship between incoming and outgoing messages?
+\item is there a `start' and an `end' to a sequence of messages?
+\item can a sequence be partially undone?
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Features provided by WSCI}
+\begin{itemize}
+\item \emph{message choreography}: ordering rules
+\item \emph{transaction boundaries and compensation}, allowing
+participation in distributed transactions
+\item \emph{exception handling}, reactions to exceptional circumstances
+\item \emph{thread management}: capability for concurrent conversations,
+and correlation of these
+\item \emph{properties and selectors} that govern observable behaviour
+\item \emph{connections} between consumers and producers
+\item \emph{dynamic participation}: how target identity is selected
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{WSFL}
+\begin{itemize}
+\item IBM's contribution to standardization (Frank Leymann et al.)
+\item two modes of use:
+  \begin{description}
+  \item[flow model] describes \emph{usage pattern} of collection of web
+    services
+  \item[global model] describes distributed \emph{interaction pattern}
+    between collection of web services
+  \end{description}
+\item supports recursive composition: each flow model or global model can
+  in turn be represented as a web service, and further composed
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Composition}
+\begin{itemize}
+\item one use case for WSFL
+\item enterprise implements a business process by composing existing web
+  services 
+\item existing base services already provided by other vendors (or by this one)
+\item coordination of these services described in WSFL
+\item eg providing a \textsc{Fa\c cade} for a complex collection of services
+\item advert in service repository would attract offers from consumers 
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Parametrization}
+\begin{itemize}
+\item a second use case for WSFL, a variation on the first
+\item abstract away from particular implementations of base services;
+  leave \emph{plug links} for later binding
+\item still use WSFL to describe the coordination
+\item describes \emph{exports} (services provided) and \emph{imports}
+  (services required)
+\item appropriate for describing service \emph{brokers};
+  eg comparative shopping service acts as a broker between shoppers and
+  shops 
+\item advert in service repository would attract two kinds
+  of offers: from producers and consumers
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{XLANG}
+\begin{itemize}
+\item Microsoft's contribution, part of BizTalk (EAI for .Net)
+\item sequential and parallel flow constructs
+\item internal and external choice
+\item long running transactions with compensations
+\item custom correlation of messages
+\item exception handling
+\item abstraction from detail: \emph{opaque values}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{WS-BPEL}
+\begin{itemize}
+\item formerly \emph{Business Process Execution Language for Web Services}
+\item a combination of IBM's WSFL (graph-oriented control flow) and
+  Microsoft's XLANG (structured control flow)
+\item input also from BEA, Siebel, SAP, Sun
+\item envisage two usage patterns: for describing \emph{abstract processes}
+  (describing interaction patterns but not data transformations) and
+  \emph{executable processes} 
+\item common core, with extensions for each usage pattern
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Executable processes vs business protocols}
+\begin{itemize}
+\item \emph{executable business process} captures participants' exact
+behaviour
+\item \emph{business protocol} is an abstraction of this: describes message
+exchanges but not specific data
+\item business protocol involves \emph{transparent data} (relevant to
+public aspects) and \emph{opaque data} (relevant only to private back-end
+systems)
+\item analogous to network packet's \emph{control fields} and
+\emph{payload}
+\item from business protocol point of view, opaque data is
+nondeterministically chosen
+\item a contribution from XLANG (which provided only business protocols,
+  but anticipated extensions to executable processes)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Simple example}
+\begin{itemize}
+\item purchase order system
+\item system receives purchase order from customer
+\item price is calculated, shipping arranged, production scheduled
+  (in parallel)
+\item on completion, invoice is produced
+\item choice of shipper feeds into price calculation
+\item shipping date feeds into production schedule
+\medskip
+\item see appendix for WSDL and BPEL
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Abstract activity diagram for purchase orders}
+\begin{center}
+\includegraphics[height=0.9\textheight]{diagrams/order-activity}
+\end{center}
+\end{slide}
+
+\begin{slide}
+\Subheading{Messages and port types}
+\begin{center}
+\includegraphics[height=0.9\textheight]{diagrams/order-class}
+\end{center}
+\end{slide}
+
+\begin{slide}
+\Subheading{Partner links}
+\begin{center}
+\includegraphics[height=0.9\textheight]{diagrams/order-component}
+\end{center}
+\end{slide}
+
+\begin{slide}
+\Subheading{Notes on partner links}
+\begin{itemize}
+\item interactions between business process and external parties
+\item \emph{partner link type} defines one (for unidirectional links) or
+  two (for bidirectional) \emph{roles} of corresponding \emph{port~types}
+\item (here, no requirements are placed on the customer using the
+  \textit{PurchaseOrder} component, and no requirements are placed on this
+  for using the \textit{ProductionScheduler} component; for an asynchronous
+  service, customer would have to provide a callback interface)
+\item \emph{partner links} instantiate partner link types, specifying
+  \textit{myRole} (played by this process) and/or \textit{partnerRole}
+  (played by external party)
+\item bindings of actual partners to external roles are omitted
+\item would expect opposites to match up, but WS-BPEL supports only incoming
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Coordination}
+\begin{center}
+\includegraphics[height=0.9\textheight]{diagrams/order-flow}
+\end{center}
+\end{slide}
+
+\begin{slide}
+\Subheading{Notes on coordination}
+\begin{itemize}
+\item dataflow links by global \emph{variables}
+\item \emph{fault handlers} for exceptions (omitted in activity diagram for
+  simplicity) 
+\item \xmlfrag{<sequence>} element for sequential ordering
+\item \xmlfrag{<flow>} element for concurrent execution
+\item \xmlfrag{<link>} elements for extra dependencies within \xmlfrag{<flow>}
+\item simple \xmlfrag{<assign>}ments shown; more complex ones available
+\item control constructs (\xmlfrag{<switch>}, \xmlfrag{<while>}) also available
+\item \xmlfrag{<receive>} for messages consumed by process, and
+  \xmlfrag{<reply>} for responses
+\item \xmlfrag{<invoke>} for messages sent to external parties
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Reflection}
+\begin{itemize}
+\item BPEL represented in XML is very ugly; not worth exploring here
+\item tools should do all the relevant translating for you: UML to
+BPEL translators exist, for example
+\item we can use this approach to describe abstract and concrete
+coordination processes;  the concrete coordination process has to run
+somewhere
+\item design activity is the crucial piece~--- UML profiles
+can help
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}

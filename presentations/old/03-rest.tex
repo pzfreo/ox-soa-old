@@ -1,0 +1,504 @@
+\newif\iffaked \fakedfalse
+\iffaked
+\documentclass{sepslide-soa-faked} % jim has mucked up xdvi settings
+\else
+\documentclass{sepslide-soa}
+\fi
+
+%\usepackage{array}
+%\iffaked\else
+%\makeatletter
+%\def\@tabular{\leavevmode \hbox \bgroup $\color{TextColor} \col@sep \tabcolsep \let \d@llarbegin \begingroup \let \d@llarend \endgroup \@tabarray} % $
+%\makeatother
+%\fi
+
+\title{REST}
+\topic{3}{REST}[PineGreen]
+% \newcolor{TitleColor}{named}{Blue}
+\indexfile{00-index.pdf}
+
+\begin{document}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+  \Contents
+\end{slide}
+
+\begin{slide}
+\Heading{Representational state transfer (REST)}
+\begin{itemize}
+\item Roy Fielding, a principal author of HTTP
+\item PhD thesis \textit{Architectural Styles and the Design of Network-based Software Architectures} (2000)
+\begin{quote}
+more about evaluation than a cookbook
+\end{quote}
+\item subsequent article \textit{Principled Design of the Modern Web Architecture} (ACM TOIT 2:2, 2002)
+\item Richardson \& Ruby, \textit{RESTful Web Services}
+\item architectural patterns of the web
+\item taking HTTP seriously as a distributed computing protocol:
+fixed few verbs, emphasis on the nouns
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Architectural styles}
+\includegraphics[width=\textwidth]{diagrams/rest-constraints}
+\end{slide}
+
+\begin{slide}
+\Subheading{Client--server (CS)}
+\begin{itemize}
+\item server offers services, listens for requests
+\item client sends request, waits for response
+\item transient, triggering client; persistent, reactive server
+\item separation of concerns: user interface from behaviour
+\item improves \emph{portability} to a new user interface
+\item improves \emph{scalability} by simplifying components
+\item improves \emph{evolvability} by allowing independent evolution of components
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Replication (RR) and caching (\$)}
+\begin{itemize}
+\item \emph{replicated repository}: multiple servers provide same service
+\item present the illusion of a single, centralized service
+\item improves \emph{performance}: latency, redundancy
+\item \emph{maintaining consistency} the primary challenge
+\bigskip
+\item a variation: \emph{caching} responses for later reuse
+\item effectively a replication of a fragment
+      (typically, potential data set is huge or infinite)
+\item responses explicitly or implicitly labelled cacheable or not
+\item lazy or active replication
+\item less effective than full replication, but cheaper and simpler
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Stateless (S)}
+\begin{itemize}
+\item each request from client must carry all necessary context
+\item no \emph{session state} stored on server~--- kept entirely on client
+\item (\emph{resource state} is a different matter)
+\item improves \emph{visibility} for monitoring
+\item improves \emph{reliability} by simplifying recovery from partial failure
+\item improves \emph{scalability} by allowing server to free resources quickly
+\item improves \emph{evolvability} by simplifying server, cache 
+\item decreases \emph{performance} by increasing overhead
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Layered systems (LS)}
+\begin{itemize}
+\item hierarchical arrangement
+\item layer provides services to layer above, uses services from layer below
+\item improves \emph{evolvability} and \emph{reusability} through abstraction
+\item decreases \emph{performance} through overhead, latency
+\bigskip
+\item layered-client-server (LCS) adds proxy and gateway components to CS
+\item \emph{proxy} acts as shared server for one or more clients, forwarding (maybe translated) requests
+\item \emph{gateway} appears as normal server, but forwards (maybe translated) requests to lower layers: load balancing, security
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Uniform interface (U)}
+\begin{itemize}
+\item improves \emph{simplicity} and \emph{visibility}
+\item decreases \emph{efficiency} through possible data translations
+\bigskip
+\item for REST, optimized for large-grain hypermedia data transfer
+\item identification of \emph{resources}
+\item manipulation of resources through \emph{representations}
+\item \emph{self-descriptive} messages
+\item hypermedia as the engine of application \emph{state}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Virtual machine (VM) and code-on-demand (COD)}
+\begin{itemize}
+\item mobile code
+\item dynamically relocate processing between data source and destination
+\item improves \emph{performance} by relocating code near data
+\item data element must be transformed into component
+\bigskip
+\item extend client functionality by downloading applets/scripts
+\item virtual machine to provide controlled environment
+\item improves \emph{simplicity} and \emph{extensibility} of client
+\item reduces \emph{visibility}
+\item not a big part of REST-based SOA (yet: cf AJAX)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{The REST architectural style}
+\begin{itemize}
+\item `uniform, layered, cached-client, stateless-server, with code-on-demand'
+\item data elements
+\item connectors
+\item components
+\bigskip
+\item some good reading at \url{http://www.prescod.net/rest/}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Resources}
+\begin{itemize}
+\item key idea: every data element is a \emph{resource}
+\begin{itemize}
+\item named document
+\item temporal service (`today's lunch menu at Rewley')
+\item collection of other resources
+\item non-virtual object (`Marilyn Monroe')
+\item anything you might want reference, annotate, or act upon
+\item abstractly, just a time-dependent set of values
+\end{itemize}
+\item resources referenced by URIs
+\item generality
+\item late binding of reference to representation
+\item insulation of reference from representation
+\item quality of identifier proportional to effort spent maintaining validity
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Representations}
+\begin{itemize}
+\item state of resource captured and transferred between components
+\item might be current or desired future state
+\item represented as data plus metadata (name--value pairs)
+\item think document\maths{+}headers, or HTTP message
+\item metadata includes control data, media type
+\item one resource might have several representations
+\item selected via separate URIs, or via \emph{content negotiation}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Interaction}
+\begin{itemize}
+\item abstract interface for component communication
+\item stateless interactions:
+\begin{itemize}
+\item connectors need not retain application state between requests
+\item interactions can be processed in parallel, naively
+\item intermediary may view and understand request in isolation
+\item reusability of cached response can be determined from response itself
+\end{itemize}
+\item request parameters: control data, target URI, optional representation
+\item response parameters: control data, optional resource metadata, optional representation
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Connectors}
+\begin{itemize}
+\item initiating \emph{client}
+\item reactive \emph{server}
+\item \emph{cache}, either at client or at server, maybe shared
+\item \emph{resolver} translates URIs into locations (eg DNS, DOI)
+\item \emph{tunnel}, relaying communication across a connection boundary
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Components}
+\begin{itemize}
+\item \emph{user agent} uses client connector to initiate response (eg browser)
+\item \emph{origin server} uses server connector to govern namespace for requested resource
+\item \emph{proxy} and \emph{gateway} act as both client and server
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{State transitions}
+\begin{itemize}
+\item control state concentrated into resource representations
+\item embedded resource identifiers indicate possible next states
+\item allows user to directly manipulate state (eg through browser history, context switching)
+\item model application is therefore \emph{an engine that moves from state to state by selecting from alternative transitions in current set of representations}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{REST-based architecture}
+\includegraphics[width=\textwidth]{diagrams/rest-architecture}
+\end{slide}
+
+\begin{slide}
+\Heading{Resource-oriented architecture}
+\begin{itemize}
+\item after Richardson \& Ruby, \textit{RESTful WS}
+\item action identified in HTTP method, not in payload
+\item scoping information in URI
+\begin{verbatim}
+GET reports/open-bugs HTTP/1.1
+\end{verbatim}
+\item in contrast to RPC-style interaction
+\begin{verbatim}
+POST /rpc HTTP/1.1
+Host: www.upcdatabase.com
+\end{verbatim}
+\begin{verbatim}
+<?xml version="1.0">
+<methodCall>
+  <methodName>lookupUPC</methodName> ...
+</methodCall>
+\end{verbatim}
+\item \ldots or hybrid
+\begin{verbatim}
+http://www.flickr.com/services/rest?method=search&tags=cat
+\end{verbatim}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{RESTful operations}
+\begin{quote}
+\begin{tabular}{@{}lll@{}}
+\textit{CRUD verb} & \textit{HTTP method} & \textit{arguments} \\ \hline
+create & PUT & fresh representation \\
+retrieve & GET & \\
+update & PUT & revised representation \\
+delete & DELETE &
+\end{tabular}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{PUT vs POST}
+\begin{itemize}
+\item actually, creation by either PUT to new URI or POST to existing URI
+\item typically, create a subordinate resource with a POST to its parent
+\item use PUT when client chooses URI; use POST when server chooses 
+\item successful POST returns code 201 `Created' with \texttt{Location} header
+\item (POST also sometimes used for form submission, but this can be non-uniform)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Designing a ROA (Richardson \& Ruby)}
+\begin{itemize}
+\item figure out dataset
+\item split dataset into resources
+\end{itemize}
+and for each resource:
+\begin{itemize}
+\item name the resource with URI(s)
+\item expose (a subset of) the uniform interface
+\item design representations accepted from client
+\item design representations served to client
+\item integrate with other resources, using links
+\item consider typical course of events
+\item consider exceptional conditions
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Asynchronous operations}
+\begin{itemize}
+\item HTTP is synchronous: request--response
+\item what about long-running requests? \emph{deferred synchronous} interaction
+\medskip
+\item client POSTs request (because not idempotent)
+\begin{verbatim}
+POST /queue HTTP/1.1
+Host: jobservice.com
+\end{verbatim}
+\begin{verbatim}
+Please tell me whether 2^43,112,609 - 1 is prime.
+\end{verbatim}
+\item server queues task, returns code 202 `Accepted' with URI:
+\begin{verbatim}
+202 Accepted
+Location: http://jobservice.com/queue/job11a4f9
+\end{verbatim}
+\item client polls resource:
+\begin{verbatim}
+GET /queue/job11a4f9 HTTP/1.1
+\end{verbatim}
+getting either status report or result
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{URI design}
+\begin{itemize}
+\item URIs should be meaningful and well-structured
+\item client should be able to construct URI to access a resource
+  (increases \emph{surface area})
+\item use paths to separate elements of hierarchy, general to specific
+\item use punctuation to separate items at same hierarchical level
+\item commas when order matters (eg coordinates), semicolons otherwise
+\item use query variables only for `arguments'
+\item URIs denote resources, not operations
+  (unless the operation is itself something you might CRUD)
+\item some (eg TBL) say URIs should be opaque\ldots why?
+  % can stay constant when resource state changes: eg people change name
+  % cf weblog entries: original date better than title
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Representations}
+\begin{itemize}
+\item may be human-readable, but should be computer-oriented
+\item eg collection of values, not picture of graph
+  (unless graphing is the service!)
+\item need not be XML: plain text, key--value pairs, JSON, \ldots
+\item outgoing representations should be acceptable as incoming too: \\
+  client may GET, update, PUT
+\item use return codes, not outgoing representations, for error conditions
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Conditional GET}
+\begin{itemize}
+\item save bandwidth by not resending unchanged representations
+\item requires collaboration between client and server
+\item server sends \verb"Last-Modified" header with representation
+\item client requests \verb"If-Modified-Since" 
+\item server may return code 304 `Not Modified', and no representation
+\item similarly, \verb"ETag" (hashcode) and \verb"If-None-Match"
+\item if client requests both \verb"If-Modified-Since" and \verb"If-None-Match", server should send representation only if representation is modified and has different entity tag
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{The trouble with cookies}
+\begin{itemize}
+\item opaque data sent by server to client
+\item often a key into server-side table of session state
+\item violates principles of statelessness (ie, a hack)
+  \begin{itemize}
+  \item client cannot control their own session state \\
+    (breaks the `back' button on the browser)
+  \item server must store this state (indefinitely)
+  \item much easier for client and server to get out of sync
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Interfaces for RESTful services}
+\begin{itemize}
+\item how to describe a RESTful web service?
+\item what is to REST as WSDL is to SOAP?
+\item \emph{Web Application Description Language} (WADL):
+  \begin{itemize}
+  \item site map of resources
+  \item referential and causal links between resources
+  \item methods applicable to each resource
+  \item resource representation formats
+  \item all machine-processable
+  \end{itemize}
+\item without something like WADL, is REST service-oriented?
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Example: social bookmarking}
+\begin{itemize}
+\item user \emph{accounts}
+\item \emph{bookmarks}
+\item \emph{tags} for bookmarks
+\item \emph{bundles} of tags for a user
+\medskip
+\item each bookmark accumulates \emph{currency}, \emph{popularity}, \emph{tag cloud} \\
+  (but we won't model those)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Structure}
+\begin{quote}
+\includegraphics[height=0.8\textheight]{diagrams/delicious.eps}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{Accounts}
+\begin{flushleft}
+\begin{tabular}{@{}ll@{}}
+\textit{intention} & \textit{operation} \\ \hline
+create account & \verb"POST /users" \\
+view account & \verb"GET /users/<username>" \\
+modify account & \verb"PUT /users/<username>" \\
+delete account & \verb"DELETE /users/<username>" 
+\end{tabular}
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Subheading{Bookmarks}
+\begin{flushleft}
+\begin{tabular}{@{}ll@{}}
+\textit{intention} & \textit{operation} \\ \hline
+post bookmark & \verb"POST /users/<username>/bookmarks" \\
+fetch bookmark & \verb"GET /users/<username>/bookmarks/<uri>" \\
+modify bookmark & \verb"PUT /users/<username>/bookmarks/<uri>" \\
+delete bookmark & \verb"DELETE /users/<username>/bookmarks/<uri>" \\
+user's last post? & use conditional \verb"GET" \\
+user's posting history & \verb"GET /users/<username>/calendar" \\
+fetch filtered history & \verb"GET /users/<username>/calendar/<tag>"
+\end{tabular}\hspace*{-1in}
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Subheading{Searching}
+\begin{flushleft}
+\begin{tabular}{@{}ll@{}}
+\textit{intention} & \textit{operation} \\ \hline
+all user's bookmarks & \verb"GET /users/<username>/bookmarks" \\
+\ldots by tag & \verb"GET /users/<username>/bookmarks/<tag>" \\
+search & \verb"GET /users/<username>/bookmarks?<query>" 
+\end{tabular}
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Subheading{Socialising}
+\begin{flushleft}
+\begin{tabular}{@{}ll@{}}
+\textit{intention} & \textit{operation} \\ \hline
+recent bookmarks & \verb"GET /recent" \\
+\ldots by tag & \verb"GET /recent/<tag>" \\
+who bookmarked uri? & \verb"GET /uris/<uri>" \\
+\end{tabular}
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Subheading{Tags and bundles}
+\begin{flushleft}
+\begin{tabular}{@{}ll@{}}
+\textit{intention} & \textit{operation} \\ \hline
+user's vocabulary & \verb"GET /users/<username>/tags" \\
+rename tag & \verb"PUT /users/<username>/tags/<tag>" \\
+user's bundles & \verb"GET /users/<username>/bundles" \\
+bundle tags & \verb"POST /users/<username>/bundles" \\
+fetch bundle & \verb"GET /users/<username>/bundles/<bundle>" \\
+modify bundle & \verb"PUT /users/<username>/bundles/<bundle>" \\
+delete bundle & \verb"DELETE /users/<username>/bundles/<bundle>"
+\end{tabular}
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}

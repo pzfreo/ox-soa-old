@@ -1,0 +1,589 @@
+\newif\iffaked \fakedfalse
+\iffaked
+\documentclass{sepslide-soa-faked} % jim has mucked up xdvi settings
+\else
+\documentclass{sepslide-soa}
+\fi
+
+\title{Components}
+\topic{1}{Software components}[YellowGreen]
+% \newcolor{TitleColor}{named}{Blue}
+\indexfile{00-index.pdf}
+
+\begin{document}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+  \Contents
+\end{slide}
+
+\begin{slide}
+\Heading{Mass-produced software components}
+\begin{quote}
+\ifpdf
+\includegraphics[width=\textwidth]{diagrams/MDM-LECTURE.png}%
+\else
+\includegraphics[width=\textwidth]{diagrams/MDM-LECTURE.eps}%
+\fi
+\end{quote}
+Doug McIlroy, NATO conference on Software Engineering, 1968
+\end{slide}
+
+\begin{slide}
+\Subheading{Catalogue of components}
+\begin{itemize}
+\item industrialism vs crofting, engineering vs craft
+\item orthogonal families of interchangeable components
+\item varying robustness, generality, performance, precision\ldots
+\item choice tailored to individual use
+\item no significant penalty for choice
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Component variation}
+\begin{itemize}
+\item numerical routines for computing sine function
+\item varying precision
+\item floating or fixed point
+\item argument range ($0$--$\pi/2$, $0$--$2\pi$, $-\pi/2$--$\pi/2$, $-\pi$--$\pi$, arbitrary)
+\item validation (out of range, loss of significance\ldots)
+\item time--space tradeoff by table lookup: table size, quantization
+\item expected call sequences (eg successive calls for sine and cosine of same angle)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Parameters}
+\begin{itemize}
+\item generality (which parameters adjustable at run-time)
+\item precision (length, width, size)
+\item robustness (accuracy versus performance)
+\item performance (time vs space)
+\item interface (eg for errors: alternate return, error code, exception)
+\item algorithm
+\item data representation
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Pragmatics}
+\begin{itemize}
+\item `mass production' of models, not of replicates
+\item can't hand-craft each component: they must be generated
+\item (hence generics, partial evaluation, product lines\ldots: 
+  systematized parametrization)
+\item distinction between component suppliers and consumers
+\item chicken and egg problem with a market
+\item standardization: neither too early nor too late
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Modularity}
+\begin{itemize}
+\item structured programming: disciplined control flow
+\begin{quote} Dijkstra, \textit{Goto Considered Harmful}, 1968 \end{quote}
+\item modules: information hiding
+\begin{quote} Parnas, \textit{Criteria for Decomposing Systems}, 1972 \end{quote}
+\item data abstraction: smart data structures and dumb code
+\begin{quote} Liskov, \textit{Abstract Data Types}, 1974 \end{quote}
+\item object orientation: polymorphism, subtyping, inheritance
+\begin{quote} Dahl, Myhrhaug, Nygaard, \textit{Simula}, 1967 \end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Component-oriented programming}
+\begin{itemize}
+\item Clemens Szyperski, \textit{Component Software: Beyond OOP}
+\item \emph{software components} enable practical reuse of software parts
+\item composing components improves quality, supports rapid development,
+increases flexibility
+\item component software expected to be \emph{the} cornerstone of software
+in the years to come
+\item \ldots but we've been saying that since 1968
+\item \ldots however, recent developments in language technology offer
+renewed hope
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Engineering components} % CS-BOOP 1.1
+\begin{itemize}
+\item use of components is axiomatic in any mature engineering discipline
+\item by analogy, should be in software engineering too
+\item sometimes said that software is too \emph{flexible} for components
+\begin{quote}
+\emph{The programmer, like the poet, works only slightly removed from pure thought-stuff.} (Fred Brooks)
+\end{quote}
+\item \ldots but this just indicates immaturity in the discipline
+\item Szyperski claims \emph{software engineering now entering maturity}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Custom-made \textit{vs} standard software} % CS-BOOP 1.2
+\begin{itemize}
+\item one extreme: project from scratch, using only programming tools and
+libraries 
+\item optimally adapted, but expensive, technically
+suboptimal, usually late, and requires maintenance
+\item hence major trend towards other extreme: project outsourced, COTS software bought
+% and parametrized until close enough % that's not at the extreme
+\item 
+  may involve business reorganization,
+  cannot confer any competitive advantage,
+  slow to adapt to changing needs
+\item component software is a `third way': customized assembly of standard
+components; compromise between cost efficiency and flexibility
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Spectrum between make-all and buy-all} % CS-BOOP Fig 1.1
+\begin{quote} 
+\includegraphics{diagrams/graphs-1} 
+\end{quote}
+\label{fig:makeall-vs-buyall}
+\end{slide}
+
+\begin{slide}
+\Subheading{Critical mass} % CS-BOOP 1.3
+\begin{itemize}
+\item technical superiority of component technology is not enough
+\item \emph{critical mass} also required:
+  variety and quality, apparent benefit, strong or numerous sources
+\item then use of components becomes inevitable, and proprietary solutions
+become unsustainable
+\item if such a vortex is plausible, \emph{preparedness} for an emerging
+component market is essential
+\item preparation involves component-friendly (modular) approach, which
+has its own advantages anyway
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{The nature of software} % CS-BOOP 1.4
+\begin{itemize}
+\item software components initially considered analogous to hardware components
+  \begin{quote} software IC, software bus \end{quote}
+\item also analogy with hi-fi components, 
+  mechanical engineering (gears, nuts, bolts), Lego
+\item but software is different:
+  deliverable is not product, but \emph{blueprint} for product
+\item computer is \emph{factory}, instantiating blueprint
+\item \textit{by default, repeated instantiation is trivially easy}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Deployable entities} % CS-BOOP 1.5
+\begin{itemize}
+\item as important to distinguish between software and instances as between
+plan and building (`the map is not the territory')
+\item confusion between classes and objects
+\item similar confusions in entity-relationship modelling, CRC cards
+\item understandable: in software, both plan and building representable by
+same kind of thing (eg object, bits)
+\item plans can be parametrized, applied recursively,
+scaled, repeatedly instantiated, whereas instances cannot
+\item software is a \emph{generic metaproduct}
+\item maths a good model of logical structure of software, but not of
+engineering and market aspects
+\item moral: SE is a blend of physical and logical engineering
+\end{itemize}
+\end{slide}
+
+%\begin{slide}
+%\Subheading{Units of deployment} % CS-BOOP 1.5
+%\begin{itemize}
+%\item software component is what is actually deployed in a component-based approach 
+%\item objects almost never bought, sold or deployed independently
+%\item unit of deployment typically more static: class, or framework of classes
+%\item objects forming part of `component instance' are instantiated from classes deployed within the component
+%\item thus components themselves not normally instantiated; indeed, component may not have OO implementation at all
+%\item object technology mostly used to construct monolithic applications, not components
+%\end{itemize}
+%\end{slide}
+
+\begin{slide}
+\Subheading{Lessons learned} % CS-BOOP 1.6
+\begin{itemize}
+\item non-incestuous component success stories:
+  \begin{itemize} \itemsep=0pt \parskip=0pt \topsep=0pt
+  \item modern OSs (co-existing applications)
+  \item plug-in architectures (eg Firefox, PhotoShop)
+  \item mobile phone apps
+  \end{itemize}
+\item infrastructure providing \emph{rich foundational functionality}
+\item components purchased from \emph{independent providers},
+  \emph{deployed by clients}, with \emph{direct meaning to client}
+\item different roles for component \emph{construction} and \emph{assembly}
+\item large enough for reimplementation not to be cost effective
+\item multiple components from different sources coexist
+\item \ldots but arbitrary combinations may conflict \\
+  (composability need only be highly likely, not guaranteed)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Component terminology}
+\begin{itemize}
+\item components
+\item objects
+\item modules
+\item whitebox \textit{vs} blackbox
+\item interfaces
+\item explicit context dependencies
+\item component weight
+\item standardization and normalization
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Components} % CS-BOOP 4.1.1
+\begin{itemize}
+\item \emph{unit of independent deployment}
+  \begin{quote}
+  encapsulated constituent features; cannot be partially deployed
+  \end{quote}
+\item \emph{unit of third-party composition}
+  \begin{quote}
+  self-contained, well specified
+  (interaction through well-defined interfaces)
+  \end{quote}
+\item \emph{no persistent state}
+  \begin{quote}
+  indistinguishable from a copy 
+  (except perhaps for non-operational attributes like serial number)
+  \end{quote}
+\item eg database server (but not the database itself)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Objects} % CS-BOOP 4.1.2
+\begin{itemize}
+\item unit of instantiation (unique identity: Grandpa's axe)
+\item has state, perhaps persistent
+\item encapsulates state and behaviour
+\item construction plan: \emph{class} (instantiated) or \emph{prototype} (cloned)
+\item initialization: \emph{constructor} (static procedure) or \emph{object
+factory} (separate object)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Components vs objects} % CS-BOOP 4.1.3
+\begin{itemize}
+\item typically, component consists of one or more classes or prototype
+objects, perhaps with immutable objects capturing initial state and other
+such resources
+\item but component need not contain classes only, or at all
+\item might contain global procedures or static variables; might be
+implemented in functional or assembly language
+\item (references to) objects created inside component may become visible
+from outside
+\item but revealed objects do not tell whether component is `all OO' inside
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Modules} % CS-BOOP 4.1.4
+\begin{itemize}
+\item components close to modules (Modula-2, Ada)
+\item Eiffel treats class as `better' module
+\item more recent OO languages (Java, Oberon, etc) keep classes and modules
+(or packages) separate
+\item modules are minimal components
+\item but modules have no persistent immutable resources, apart from
+hardwired constants, so are not easily reconfigurable
+\item modularity is necessary but not sufficient for component orientation
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Whitebox vs blackbox} % CS-BOOP 4.1.5
+\begin{itemize}
+\item blackbox abstraction provides only interface signature and specification
+\item whitebox abstraction reveals also implementation
+\item blackbox and whitebox reuse of implementations, similarly
+\item whitebox reuse usually breaks under revision, which retains contract
+but changes implementation
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Interfaces} % CS-BOOP 4.1.6
+\begin{itemize}
+\item interface defines component's access points
+\item these allow component's clients (perhaps components themselves)
+access to services provided
+\item interface specifies signature and behaviour
+\item component usually provides multiple interfaces, \\ 
+catering for different client needs
+\item navigation between interfaces
+\end{itemize}
+\vspace*{-0.5in}
+\begin{flushright}
+\includegraphics[scale=0.75]{diagrams/component}
+\end{flushright}
+\end{slide}
+
+\begin{slide}
+\Subheading{Explicit context dependencies} % CS-BOOP 4.1.7
+\begin{itemize}
+\item interfaces describe component's \emph{responsibilities}
+\item context dependencies describe component's \emph{rights}
+\item specify what deploying environment must provide
+\item these too should be explicit
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Component weight} % CS-BOOP 4.1.8
+\begin{itemize}
+\item component may minimize context dependencies by bundling all required
+services
+\item defeats purpose of using components
+\item dually, may maximize reuse by `outsourcing' all but core
+functionality
+\item restricts opportunities for use
+\begin{quote}
+  \emph{maximizing reuse minimizes applicability}
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Trade-off of leanness against robustness}
+\begin{quote} 
+\includegraphics{diagrams/graphs-2} 
+\end{quote}
+(note similarity with Slide~\ref{fig:makeall-vs-buyall}: 
+reuse across components here \textit{vs} reuse of components there)
+\end{slide}
+
+\begin{slide}
+\Subheading{Standardization and normalization} % CS-BOOP 4.2
+\begin{itemize}
+\item shift `sweet spot' from robustness towards leanness by improving
+degree of standardization and normalization
+\item more stable and widely supported aspect is safer dependency
+\item (cf business depending on telephone, now and in past)
+\item \emph{horizontal standardization}: across domains (eg WWW)
+\item \emph{vertical standardization}: within a domain (eg medical radiology)
+\item \emph{normalization} to unify competing standards
+  (especially parallel vertical standards, eg image formats in medical
+  radiology and radio astronomy)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Software component: a definition} % CS-BOOP 4.1.5
+  \begin{quote}
+  \emph{A software component is a unit of composition with contractually
+  specified interfaces and explicit context dependencies only. A software
+  component can be deployed independently and is subject to composition by
+  third parties.}
+  \end{quote}
+\begin{itemize}
+\item an outcome of \textit{Workshop on Component-Oriented Programming} at ECOOP96
+\item combines technical and market-oriented aspects
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Services}
+\begin{quote}
+\emph{It is not the strongest of the species that survive, nor the most intelligent, but the ones most responsive to change.}
+(Darwin)
+\end{quote}
+\begin{itemize}
+\item flexibility is vital
+\item processes and systems are becoming more and more complex
+\item no longer separate systems, but combined 
+\item harmonization and central control does not scale
+\item we must embrace heterogeneity and decentralization
+\end{itemize}
+(Arguments from Josuttis, \textit{SOA in Practice}.)
+\end{slide}
+
+\begin{slide}
+\Subheading{Service-oriented architecture}
+\begin{itemize}
+\item services
+\begin{quote}
+self-contained, loosely coupled units of functionality; may participate in multiple processes, and be implemented with various technologies on various platforms
+\end{quote}
+\item infrastructure
+\begin{quote}
+the \emph{enterprise service bus}, for easy and flexible interoperation of services
+\end{quote}
+\item policies
+\begin{quote}
+to deal with the fact that large distributed systems are heterogeneous, continuously under maintenance, have multiple owners
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Large distributed systems}
+SOA is specifically for dealing with large distributed systems:
+\begin{itemize}
+\item legacy-laden
+\item heterogeneous
+\item long-lived
+\item complex
+\item under multiple ownership
+\item imperfect
+\item redundant (denormalized)
+\item intolerant of bottlenecks
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Postmodern software engineering}
+\begin{quote}
+  Lots of software is already written and can solve your problems, if
+  you can only get it to do what you need. \emph{Postmodern programming} is
+  about using code that already exists, and not writing much code
+  yourself. This is usually in the form of gluing together or
+  configuring other people's code. This is the reality of `enterprise'
+  software today. Postmodern programmers recognise this fact and work
+  with it rather than pretend that it isn't the case and come up with,
+  for example, a programming language or paradigm that would solve all
+  programming problems once and for all if only everybody does
+  everything properly---that way---the one true way. 
+  \textbf{There is no One True Way.}
+\end{quote}
+\url{http://www.elvis.ac.nz/brain?PostmodernProgramming}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{PoMoPro principles}
+\begin{itemize}
+\item examples over documentation
+\item source code over binary components
+\item loosely structured data over highly structured data
+\item dynamic typing over static typing
+\item focused components over frameworks
+\item composing components over modifying existing applications
+\item rich component library over programming tools
+\item actual capabilities over intended use (POSIWID)
+\item simplify the problem over functional areas 
+\end{itemize}
+(Nat Pryce, Ivan Moore, \textit{Scrapheap Challenge}, OOPSLA2005)
+\end{slide}
+
+\begin{slide}
+\begin{minipage}{0.5\textwidth}\raggedright
+\vbox to 3.1in{
+\Subsubheading{Modernist perspective}
+\begin{itemize}
+\item absolute truth, right and wrong answers, one big story
+\item correctness is everything
+\item specification, stepwise refinement, proof
+\end{itemize}\vfil}
+\end{minipage}
+\hfil
+\begin{minipage}{0.4\textwidth}\begin{flushright}%
+\includegraphics[height=3.1in]{diagrams/115564-004-E6960AAA_royalsoc}%
+\end{flushright}\end{minipage}%
+\end{slide}
+
+\begin{slide}
+\begin{minipage}{0.5\textwidth}\raggedright
+\vbox to 3.1in{
+\Subsubheading{Postmodern perspective}
+\begin{itemize}
+\item `incredulity towards meta-narratives'
+\item no one privileged view
+\item toleration of conflict and contradiction
+\item it's all relative
+\item `good enough software', `worse is better'
+\end{itemize}\vfil}
+\end{minipage}
+\hfil
+\begin{minipage}{0.4\textwidth}\begin{flushright}%
+\includegraphics[height=3.1in]{diagrams/Braque-woman-400pix}%
+\end{flushright}\end{minipage}%
+\end{slide}
+
+\begin{slide}
+\Subheading{Some more definitions of services}
+\begin{quote}
+\emph{loosely coupled software components that interact with each other dynamically via standard Internet technologies}
+(Gartner)
+\end{quote}
+\begin{quote}
+\emph{a piece of business logic accessible via the Internet using open standards}
+(Microsoft)
+\end{quote}
+\begin{quote}
+\emph{encapsulated, loosely coupled, contracted software functions, offered via standard protocols over the Web}
+(DestiCorp)
+\end{quote}
+\begin{quote}
+\emph{a software application identified by a URI, whose interfaces and binding are capable of being defined, described and discovered by XML artifacts and supports direct interactions with other software applications using XML-based messages via Internet-based protocols}
+(W3C)
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{Observations}
+\begin{itemize}
+\item services are ideally \emph{stateless}
+\item \emph{reuse} has been subordinated to modularity
+\item \emph{interfaces} are the crux 
+\begin{quote} (a Gartner analyst said that `SOA would be better named \emph{interface-oriented architecture}') \end{quote}
+\item signature $\to$ behaviour $\to$ service level
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Service principles}
+\begin{itemize}
+\item reusable
+\item contracted
+\item loosely coupled
+\item abstract
+\item composable
+\item autonomous
+\item stateless
+\item discoverable
+\end{itemize}
+(After Erl, \textit{SOA}.)
+\end{slide}
+
+\begin{slide}
+\Subheading{SOA vs Web Services}
+\begin{itemize}
+\item WS $=$ WSDL $+$ UDDI $+$ SOAP (roughly speaking)
+\item service description, discovery, invocation
+\item using standard XML and Internet technologies
+\item just one approach to realizing the technical aspects of SOA
+\item SOA is not a technology!
+\bigskip
+\item is service-orientation the same as component-orientation?
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

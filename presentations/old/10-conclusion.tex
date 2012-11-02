@@ -1,0 +1,131 @@
+\newif\iffaked \fakedfalse
+\iffaked
+\documentclass{sepslide-soa-faked} % jim has mucked up xdvi settings
+\else
+\documentclass{sepslide-soa}
+\fi
+
+\title{Conclusion}
+\topic{10}{Conclusion}[Aquamarine]
+\indexfile{00-index.pdf}
+
+\begin{document}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+  \Contents
+\end{slide}
+
+\begin{slide}
+\Heading{What have we learned?}
+\begin{itemize}
+\item SOA is an approach for large systems
+\item toleration of heterogeneity and imperfection
+\item enabling scalability under modification
+\item quadratic growth leads to bottlenecks at hubs
+\medskip
+\item basically, it's all about \emph{loose coupling}:
+ minimizing dependencies
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Forms of loose coupling}
+\begin{flushleft}
+\begin{tabular}{@{}l|l|l@{}}
+ & \textit{tight} & \textit{loose} \\ \hline
+\textit{physical} & point-to-point & mediated \\
+\textit{communication} & synchronous & asynchronous \\
+\textit{data model} & complex types & simple types \\
+\textit{type system} & strong, static & loose, dynamic \\
+\textit{interaction} & object navigation & data-centric \\
+\textit{process logic} & central & distributed \\
+\textit{binding} & static & dynamic \\
+\textit{platform} & strong dependence & independence \\
+\textit{transactions} & 2PC & compensation \\
+\textit{deployment} & simultaneous & gradual \\
+\textit{versioning} & explicit & implicit
+\end{tabular}
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Subheading{Asynchronous communication}
+\begin{itemize}
+\item concurrent execution
+\item non-determinism, race conditions
+\item interrupt, re-entrance
+\item correlation of response with request
+\item recollection of original context
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Heterogeneous datatypes}
+\begin{itemize}
+\item hoping for harmonization is the kiss of death
+\item too difficult to reach consensus: ``analysis paralysis''
+\item union of all extensions gets unwieldy
+\item instead, accept mappings between different representations
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Mediators}
+\begin{itemize}
+\item point-to-point: sender specifies receiver's address
+\item what if receiver moves? overloads? breaks?
+\item intermediary isolates sender and receiver
+\item either query then send (broker, name server)
+\item \ldots or send and forward
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Loose type-checking}
+\begin{itemize}
+\item strong static typing catches many errors early
+\item but then interface changes propagate
+\item moreover, more components need to know about the types \\
+  (service repository, validating ESB, \ldots)
+\item generic data structures more adaptable
+\item eg dictionary of key--value pairs rather than parameter list
+\medskip
+\item similarly documents rather than object hierarchies
+\item similarly dynamic rather than static binding
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{The two-edged sword}
+\begin{itemize}
+\item loose coupling sounds good
+\item but it nearly always incurs a cost
+\begin{quote}
+{\sffamily
+Any problem in computer science can be solved with another layer of indirection. But that usually will create another problem.
+} \medskip \\
+(David Wheeler)
+\end{quote}
+\item in other words, sometimes 
+\begin{quote}
+{\sffamily
+Worse is better.
+} \medskip \\
+(Richard Gabriel, \url{http://www.jwz.org/doc/worse-is-better.html})
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}

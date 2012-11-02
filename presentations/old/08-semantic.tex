@@ -1,0 +1,685 @@
+\newif\iffaked \fakedfalse
+\iffaked
+\documentclass{sepslide-soa-faked} % jim has mucked up xdvi settings
+\else
+\documentclass{sepslide-soa}
+\fi
+
+\title{Semantic web}
+\topic{8}{Semantic modelling}[Emerald]
+\indexfile{00-index.pdf}
+
+\begin{document}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+  \Contents
+\end{slide}
+
+\begin{slide}
+\Heading{The semantic web vision}
+\begin{itemize}
+\item from the human web to the semantic web
+\item standardisation, representation, formalisation
+\item smart discovery, query, integration, interaction\ldots
+\item machine-processable information
+\item supporting software agents
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{A scenario}
+\small
+\begin{flushleft}
+{\sffamily
+The entertainment system was belting out the Beatles' \textit{We Can Work It Out} when the phone rang. When Pete answered, his phone turned the sound down by sending a message to all the other \textbf{local} devices that had a \textbf{volume control}. His sister, Lucy, was on the line from the doctor's office: ``Mom needs to see a specialist and then has to have a series of physical therapy sessions. Biweekly or something. I'm going to have my agent set up the appointments.'' Pete immediately agreed to share the chauffeuring.
+
+At the doctor's office, Lucy instructed her Semantic Web agent through her handheld Web browser. The agent promptly retrieved information about Mom's \textbf{prescribed treatment} from the doctor's agent, looked up several lists of \textbf{providers}, and checked for the ones \textbf{in-plan} for Mom's insurance within a \textbf{20-mile radius} of her \textbf{home} and with a rating of \textbf{excellent} or \textbf{very good} on \textbf{trusted rating services}. It then began trying to find a match between available \textbf{appointment times} (supplied by the agents of individual providers through their Web sites) and Pete's and Lucy's busy schedules.
+%The emphasized keywords indicate terms whose semantics, or meaning, were defined for the agent through the Semantic Web.)
+
+In a few minutes the agent presented them with a plan. Pete didn't like it---University Hospital was all the way across town from Mom's place, and he'd be driving back in the middle of rush hour. He set his own agent to redo the search with stricter preferences about \textbf{location} and \textbf{time}. Lucy's agent, having \textbf{complete trust} in Pete's agent in the context of the present task, automatically assisted by supplying access certificates and shortcuts to the data it had already processed. % sorted through.
+
+Almost instantly the new plan was presented: a much closer clinic and earlier times---but there were two warning notes. First, Pete would have to reschedule a couple of his \textbf{less important} appointments. He checked what they were---not a problem. The other was something about the insurance company's list failing to include this provider under \textbf{physical therapists}: ``Service type and insurance plan status securely verified by other means,'' the agent reassured him. ``(Details?)''
+
+Lucy registered her assent at about the same moment Pete was muttering, ``Spare me the details,'' and it was all set. (Of course, Pete couldn't resist the details and later that night had his agent explain how it had found that provider even though it wasn't on the proper list.) 
+} \medskip \\
+(\url{http://www.sciam.com/article.cfm?id=the-semantic-web})
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Subheading{Doesn't XML give you semantic representations?}
+\begin{quote} {\sffamily As enchanting as it is to contemplate the
+    apparent `semantic' clarity, flexibility, and extensibility of XML
+    vis-\'a-vis HTML (e.g., how wonderfully perspicuous XML
+    \xmlfrag{<bookTitle>} seems when compared to HTML \xmlfrag{<i>}),
+    we must reckon with the cold fact that XML does not of itself
+    enable blind interchange or information reuse. XML may help humans
+    predict what information might lie `between the tags' in the case
+    of \xmlfrag{<trunk></trunk>}, but XML can only help. For an XML
+    processor, \xmlfrag{<trunk>} and \xmlfrag{<i>} and
+    \xmlfrag{<bookTitle>} are all equally (and totally)
+    meaningless. Yes, meaningless.
+} \medskip \\
+(Robin Cover,
+\textit{XML and Semantic Transparency},
+\url{http://xml.coverpages.org/xmlAndSemantics.html})
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{What's needed}
+Not really science fiction; rather, engineering and technology adoption.
+\begin{itemize}
+\item explicit \emph{metadata} recording meaning
+\item \emph{ontologies} recording shared understanding
+\item logical \emph{inference} of knowledge, decisions, explanations
+\item trusted \emph{agents}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Interoperability}
+\def\level#1#2{\fbox{\hbox to #1{\hfil#2\strut\hfil}} \\[1ex]}
+\begin{center}
+\level{1.0in}{governance}
+\level{1.5in}{authorisation}
+\level{2.0in}{authentication}
+\level{2.5in}{quality}
+\level{3.0in}{semantics}
+\level{3.5in}{representation}
+\level{4.0in}{transport}
+\end{center}
+(Due to Paul Davidson.)
+\end{slide}
+
+\begin{slide}
+\Subheading{Knowledge representation}
+\begin{itemize}
+\item \emph{vocabulary}
+\begin{quote}
+list of terms, possibly definitions and synonyms
+\end{quote}
+\item \emph{taxonomy}
+\begin{quote}
+broader/narrower relationships
+\end{quote}
+\item \emph{thesaurus}
+\begin{quote}
+as taxonomy, but additionally `see also' and `use instead'
+\end{quote}
+\item \emph{ontology}
+\begin{quote}
+arbitrary relationships
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Vocabulary}
+US credit rating systems:
+\begin{itemize} 
+\item \textit{A.\,M.\,Best}:
+  A++, A+, A, A--, B++, B+, B--, C++, C+, C--, D, E, F
+\item \textit{Moody's}:
+  Aaa, Aa1, Aa2, Aa3, A1, A2, A3, Baa1, Baa2, Baa3, Ba1, Ba2, Ba3, B1, B2, B3, Caa, Ca, C
+\item \textit{Std \& Poors}:
+  AAA, AA+, AA, AA--, A+, A, A--, BBB+, BBB, BBB--, BB+, BB, BB-, B+, B, B--, CCC, R
+%\item \textit{Fitch}:
+%  AAA, AA+, AA, AA--, A+, A, A--, BBB+, BBB, BBB--, BB+, BB, BB-, B+, B, B--, CCC, DD
+\item \textit{Weiss}:
+  A+, A, A--, B+, B, B--, C+, C, C--, D+, D, D--, E+, E, E--, F
+\end{itemize}
+No direct mappings between scales. 
+(Are they even monotonic?)
+\end{slide}
+
+\begin{slide}
+\Subheading{Taxonomy}
+% Harold Solbrig suggested MESH (Medical Subject Headings, http://www.nlm.nih.gov/mesh/) instead
+\begin{flushleft}
+\includegraphics[height=0.7\textheight]{diagrams/snomed.eps}
+\end{flushleft}
+SNOMED CT (Systemized Nomenclature of Medicine -- Clinical Terms) 
+(\url{http://terminology.vetmed.vt.edu/SCT/menu.cfm})
+\end{slide}
+
+\begin{slide}
+\Subheading{Thesaurus}
+\begin{flushleft}
+\includegraphics[height=0.7\textheight]{diagrams/agrovoc.eps}
+\end{flushleft}
+Agrovoc Thesaurus (\url{http://www.fao.org/aims/cs_relationships.htm})
+\end{slide}
+
+\begin{slide}
+\Subheading{Ontology}
+\begin{flushleft}
+\includegraphics[height=0.7\textheight]{diagrams/nci-thesaurus.eps}
+\end{flushleft}
+US National Cancer Institute Thesaurus (\url{http://nciterms.nci.nih.gov/})
+\end{slide}
+
+\begin{slide}
+\Subheading{Isn't this strong AI all over again?}
+\begin{quote}
+{\sffamily
+The concept of machine-understandable documents does not imply some magical artificial intelligence which allows machines to comprehend human mumblings. It only indicates a machine's ability to solve a well-defined problem by performing well-defined operations on existing well-defined data. Instead of asking machines to understand people's language, it involves asking people to make the extra effort.
+} \medskip \\
+(Tim Berners-Lee, \textit{What the Semantic Web Can Represent}, \url{http://www.w3.org/DesignIssues/RDFnot.html})
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Heading{Resource Description Framework (RDF)}
+\begin{itemize}
+\item relations between concepts
+\item \emph{triples} as statements
+  \begin{itemize}
+  \item \emph{resource}, the subject 
+  \begin{quote}
+  a URI; unambiguous (homonyms resolved)
+  \end{quote}
+  \item \emph{property}, the verb
+  \begin{quote}
+  a binary predicate, also a named resource
+  \end{quote}
+  \item \emph{value}, the object
+  \begin{quote}
+  either a literal or another resource
+  \end{quote}
+  \end{itemize}
+\item $property(resource, value)$
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Real things}
+\begin{itemize}
+\item apply power of URIs to relationships too
+\item don't just say `colour', say
+\url{urn:pantone://solid.coated/}
+\item model real things, not just documents
+  \begin{itemize}
+  \item XML: car registration document contains single license number field
+  \item RDF: car has unique license number
+  \end{itemize}
+\item data plus metadata
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Graphical representation}
+\begin{itemize}
+\item directed graph
+\item subjects and objects as vertices
+\item properties as edges
+\end{itemize}
+\begin{quote}
+\includegraphics{diagrams/rdf-triple.eps}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{Eg Service-oriented WS Architecture Model}
+\includegraphics[width=0.8\linewidth]{diagrams/SOM}
+\end{slide}
+
+\begin{slide}
+\Subheading{Friend-of-a-friend (FOAF)}
+\begin{minipage}{0.6\textwidth}\raggedright
+\vbox to 2.5in{
+\begin{itemize}
+\item ontology of people, activities, relationships
+\item social networks without lock-in: \emph{social semantic web}
+\item based on RDF (and OWL)
+\item eg find the people you and your friend both know; recent publications by your co-authors
+\item \url{http://www.foaf-project.org/}
+\end{itemize}
+\vfil}
+\end{minipage}
+\hfil
+\begin{minipage}{0.3\textwidth}
+\vbox to 2.5in{
+\begin{flushright}%
+\includegraphics[width=\linewidth]{diagrams/Foaf}
+\end{flushright}
+\vfil}
+\end{minipage}%
+\end{slide}
+
+\begin{slide}
+\Subheading{Why is plain XML not enough?}
+\begin{itemize}
+\item even if you know what entities mean, relationships are not clear
+\item consider
+\begin{xml}
+<subject name="SOA"> <lecturer>Jeremy</lecturer> </subject>
+
+<lecturer name="Jeremy"> <subject>SOA</subject> </lecturer>
+
+<lecturing>
+  <lecturer>Jeremy</lecturer>
+  <subject>SOA</subject>
+</lecturing>
+\end{xml}
+\item each perfectly good, but combination is incompatible
+\item no standard representation, so no standard queries
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{XML is enough!}
+An XML Schema for RDF triples.
+\begin{xml}
+<?xml version="1.0" encoding="UTF-16"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+  xmlns:sep="http://www.softeng.ox.ac.uk/rdf-ns">
+  <rdf:Description 
+    rdf:about="http://www.softeng.ox.ac.uk/subjects/SOA.html">
+    <sep:lecturer 
+      rdf:resource="http://web.comlab.ox.ac.uk/Jeremy.Gibbons/"/>
+  </rdf:Description>
+</rdf>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subheading{RDF in XML}
+\begin{itemize}
+\item namespaces for definition, not just for disambiguation
+\item \xmlfrag{rdf:about} attribute is typically a predefined subject
+\item subject may be \emph{defined} here:
+\begin{xml}
+<rdf:Description rdf:ID="#SOA">
+  <sep:title>Service-Oriented Architecture</sep:title>
+</rdf:Description>
+\end{xml}
+\end{itemize}
+\end{slide}
+\begin{slide}
+\begin{itemize}
+\item \xmlfrag{<rdf:Description>} entity may contain multiple \emph{property elements}, read conjunctively
+\begin{xml}
+<rdf:Description 
+  rdf:about="http://www.softeng.ox.ac.uk/subjects/SOA.html">
+  <sep:lecturer 
+    rdf:resource="http://web.comlab.ox.ac.uk/Jeremy.Gibbons/"/>
+  <sep:title>Service-Oriented Architecture</sep:title>
+</rdf:Description>
+\end{xml}
+\item literal values may be typed
+\begin{xml}
+<rdf:Description 
+  rdf:about="http://www.softeng.ox.ac.uk/subjects/SOA.html">
+  <sep:cats rdf:datatype="&xsd;integer">15</sep:cats>
+</rdf:Description>
+\end{xml}
+\item other niceties too (more types, abbreviations, collections)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Non-binary predicates}
+\begin{minipage}{0.5\textwidth}\raggedright
+\vbox to 2.5in{
+\begin{itemize}
+\item RDF triples only support binary predicate
+\item sometimes want ternary or higher-arity
+\item eg $referees(ann,bob,cat)$: \\ ``Ann referees game between Bob and Cat''
+\item represent with three binary relationships
+\item introduce auxilliary resource $game$
+\item now use $referee(game,ann)$, $white(game,bob)$, $black(game,cat)$
+% Antoniou and van Harmelen S3.2.7
+\end{itemize}
+\vfil}
+\end{minipage}
+\hfil
+\begin{minipage}{0.45\textwidth}
+\vbox to 2.5in{
+\begin{flushright}%
+\includegraphics[width=\linewidth]{diagrams/rdf-ternary.eps}
+\end{flushright}
+\vfil}
+\end{minipage}%
+\end{slide}
+
+\begin{slide}
+\Subheading{Reification}
+\begin{itemize}
+\item statements about other statements~--- \emph{meta-statements}
+\item eg provenance, trust, belief
+\end{itemize}
+\begin{xml}
+<rdf:Statement rdf:ID="#SOA-lecturer">
+  <rdf:subject 
+    rdf:resource="http://www.softeng.ox.ac.uk/subjects/SOA.html"/>
+  <rdf:predicate rdf:resource="&sep;lecturer"/>
+  <rdf:object 
+    rdf:resource="http://web.comlab.ox.ac.uk/Jeremy.Gibbons/"/>
+</rdf:Statement>
+
+<rdf:Description rdf:about="#SOA-lecturer">
+  <sep:authorized>November 2007</sep:authorized>
+</rdf:Description>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subheading{RDF Schema (RDFS)}
+\begin{itemize}
+\item a type system for RDF
+\item restrictions on validity
+\item classification hierarchies
+\medskip
+\item RDF Schema model is itself about binary relationships
+\item so is presented in RDF
+\item (and so there's an RDF Schema for RDF and for RDF Schema\ldots)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{RDFS core classes and properties}
+\begin{itemize}
+\item \xmlfrag{rdfs:Resource}
+\item \xmlfrag{rdfs:Class}
+\item \xmlfrag{rdfs:Literal}
+\item \xmlfrag{rdfs:Property}
+\item \xmlfrag{rdfs:Statement}
+\medskip
+\item \xmlfrag{rdfs:subClassOf}
+\item \xmlfrag{rdfs:subPropertyOf}
+\item \xmlfrag{rdfs:domain}
+\item \xmlfrag{rdfs:range}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{RDFS example}
+\includegraphics[height=0.8\textheight]{diagrams/rdfs-sep.eps}
+\end{slide}
+
+\begin{slide}
+\Heading{Web Ontology Language (OWL)}
+\begin{itemize}
+\item ``an ontology is a formal, explicit specification of a shared conceptualization'' (Gruber, 1993)
+\item in particular, providing \emph{support for reasoning} about that conceptualization
+  \begin{itemize}
+  \item consistency-checking
+  \item completion
+  \item validation and verification
+  \item inference
+  \end{itemize}
+\item application of logic-programming/theorem-proving technology
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Pizza}
+\begin{flushleft}
+\includegraphics[height=0.8\textheight]{diagrams/pizza}
+\end{flushleft}
+\url{http://www.co-ode.org/ontologies/pizza/}
+\end{slide}
+
+\begin{slide}
+\Subheading{Why isn't RDF enough?}
+\begin{itemize}
+\item some reasoning possible with RDF documents: typed classification hierarchy
+\item but much other expressivity missing
+  \begin{itemize}
+  \item locally scoped properties
+  \begin{quote}
+  animals eat food, but herbivores eat only plants
+  \end{quote}
+  \item boolean combination of classes
+  \begin{quote}
+  intersection, union, complement, disjointness
+  \end{quote}
+  \item cardinality restriction
+  \begin{quote}
+  person has two parents; course has exactly one lecturer
+  \end{quote}
+  \item characteristics of properties 
+  \begin{quote}
+  transitivity, uniqueness, converse
+  \end{quote}
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{The birth of OWL}
+\begin{itemize}
+\item DARPA Agent Markup Language Ontology (DAML-ONT)
+(\url{http://www.daml.org/2000/10/daml-ont.html})
+\item Ontology Inference Layer (OIL)
+(\url{http://www.ontoknowledge.org/oil/})
+\item both based on RDF and RDFS, and ideas from \emph{description logic}
+\item joint initiative DAML+OIL
+\item the basis for W3C OWL
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Three species of OWL}
+\begin{itemize}
+\item OWL Full
+\begin{quote}
+fully upwards compatible with RDF; but undecidable
+\end{quote}
+\item OWL DL
+\begin{quote}
+drop metamodelling to allow efficient reasoning support;
+based on description logic, a decidable fragment of first-order predicate logic
+\end{quote}
+\item OWL Lite
+\begin{quote}
+excludes enumerations, disjointness, arbitrary cardinality;
+easier to learn and to implement
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Conservative extension}
+\begin{itemize}
+\item every legal OWL Lite ontology is legal OWL DL
+\item every legal OWL DL ontology is legal OWL Full
+\item every legal RDF document is also legal OWL Full
+\medskip
+\item every valid OWL Lite conclusion is valid with OWL DL
+\item every valid OWL DL conclusion is valid with OWL Full
+\item every valid RDF/RDFS conclusion is valid with OWL Full
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{OWL example}
+\begin{itemize}
+\item taken from OWL Guide \\
+\url{http://www.w3.org/TR/2003/PR-owl-guide-20031215/wine.rdf} 
+\item three root classes:
+\begin{xml}
+<owl:Class rdf:ID="Winery"/> 
+<owl:Class rdf:ID="Region"/> 
+<owl:Class rdf:ID="ConsumableThing"/> 
+\end{xml}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Wine is consumable}
+\begin{xml}
+<owl:Class rdf:ID="PotableLiquid"> 
+  <rdfs:subClassOf rdf:resource="#ConsumableThing" />
+  ...
+</owl:Class>
+
+<owl:Class rdf:ID="Wine"> 
+  <rdfs:subClassOf rdf:resource="&food;PotableLiquid"/> 
+  <rdfs:label xml:lang="en">wine</rdfs:label> 
+  <rdfs:label xml:lang="fr">vin</rdfs:label> 
+  ...  
+</owl:Class>  
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Things and types}
+\begin{xml}
+<Region rdf:ID="MarlboroughRegion" /> 
+\end{xml}
+or equivalently
+\begin{xml}
+<owl:Thing rdf:ID="MarlboroughRegion" /> 
+<owl:Thing rdf:about="#MarlboroughRegion"> 
+   <rdf:type rdf:resource="#Region"/> 
+</owl:Thing>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Subclasses and instances}
+\begin{xml}
+<owl:Class rdf:ID="WineGrape">
+  <rdfs:subClassOf rdf:resource="&food;Grape" />
+</owl:Class>
+
+<WineGrape rdf:ID="SauvignonBlancGrape" />
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Properties}
+\begin{xml}
+<owl:ObjectProperty rdf:ID="madeFromGrape"> 
+  <rdfs:domain rdf:resource="#Wine"/>
+  <rdfs:range rdf:resource="#WineGrape"/> 
+</owl:ObjectProperty> 
+
+<owl:ObjectProperty rdf:ID="course">
+  <rdfs:domain rdf:resource="#Meal" />
+  <rdfs:range rdf:resource="#MealCourse" />
+</owl:ObjectProperty>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Restriction}
+\begin{xml}
+<owl:Class rdf:ID="Wine">
+  <rdfs:subClassOf rdf:resource="&food;PotableLiquid" />
+  ...
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#hasMaker" />
+      <owl:allValuesFrom rdf:resource="#Winery" />
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  ...
+</owl:Class>
+\end{xml}
+Maker of a wine must be a winery.  Analogous
+\xmlfrag{owl:someValuesFrom} would say at least one of the
+\xmlfrag{hasMaker} relations must point to a winery.
+\end{slide}
+
+\begin{slide}
+\Subsubheading{Inference}
+Given
+\begin{xml}
+<owl:Thing rdf:ID="CloudyBaySB">
+  <madeFromGrape rdf:resource="#SauvignonBlancGrape" />
+</owl:Thing>
+\end{xml}
+we can infer that \xmlfrag{CloudyBaySB} is a wine because the
+domain of \xmlfrag{madeFromGrape} is \xmlfrag{Wine}.
+\end{slide}
+
+\begin{slide}
+\Subheading{Semantic web services}
+\begin{itemize}
+\item services should be semantically described
+\item service interfaces published in RDF
+\item `smart' directory searches using OWL inference
+\item supporting automatic service discovery, invocation, composition
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{OWL for Services (OWL-S)}
+\begin{itemize}
+\item three aspects of service description
+\item \emph{service profile}
+\begin{quote}
+yellow pages entry: inputs, outputs, preconditions, side-effects (IOPEs)
+\end{quote}
+\item \emph{service model}
+\begin{quote}
+computer-interpretable description of service behaviour (process)
+\end{quote}
+\item \emph{service grounding}
+\begin{quote}
+message format, transport mechanisms, serializations
+\end{quote}
+\item \url{http://www.w3.org/Submission/OWL-S/}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{`Semantic frameworks'}
+\begin{itemize}
+\item \emph{metadata-based, model-driven} development
+\item \emph{terminology services}
+\begin{quote}
+collections of defined terms, and relationships
+\end{quote}
+\item \emph{metadata registries}
+\begin{quote}
+observations, measurements, properties:
+terms, intended purposes, possible values
+\end{quote}
+\item \emph{model repositories}
+\begin{quote}
+database schemas, service descriptions, forms, queries, reports;
+entries linked to metadata elements
+\end{quote}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{CancerGrid}
+\begin{itemize}
+\item semantic frameworks for cancer clinical trials
+\item partners at Oxford, Cambridge, London, Birmingham, Belfast
+\item funded by UK Medical Research Council,
+  subsequently by EPSRC and Microsoft 
+\item much more widely applicable than cancer clinical trials!
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Electronic government}
+\begin{itemize}
+\item \emph{joined-up government} requires large-scale system integration and data sharing
+\item depends on computable representations of semantics of data
+\item implicit or informal representations suffice for straightforward problems, small homogeneous communites, and short time-scales
+\item but electronic government is characterised by complex problems, heterogeneous communities, and long-running initiatives
+\item a more formal approach to data semantics is required
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}

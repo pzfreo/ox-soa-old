@@ -1,0 +1,1136 @@
+\newif\iffaked \fakedfalse
+\iffaked
+\documentclass{sepslide-soa-faked} % jim has mucked up xdvi settings
+\else
+\documentclass{sepslide-soa}
+\fi
+
+%\usepackage[normalem]{ulem}
+%\renewcommand\ULthickness{1pt}
+
+\usepackage{array}
+\iffaked\else
+\makeatletter
+\def\@tabular{\leavevmode \hbox \bgroup $\color{TextColor} \col@sep \tabcolsep \let \d@llarbegin \begingroup \let \d@llarend \endgroup \@tabarray} % $
+\makeatother
+\fi
+
+\title{Web services}
+\topic{2}{Web services}[LimeGreen]
+% \newcolor{TitleColor}{named}{Blue}
+\indexfile{00-index.pdf}
+
+\begin{document}
+
+\begin{slide}
+  \Title
+\end{slide}
+
+\begin{slide}
+  \Contents
+\end{slide}
+
+\begin{slide}
+\Heading{Web services}
+\begin{itemize}
+\item implementing SOA using standard technologies: \\
+  XML, HTTP; WSDL, UDDI, SOAP; WS-\maths{\ast}
+\item term coined by Microsoft in 2000
+\item exploiting ubiquitous WWW infrastructure for distributed computing
+\item just one way to do SOA
+\item apologia: covered upfront here for logistical reasons \\
+(Josuttis relegates web services to Chapter 16)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\begin{minipage}{0.5\textwidth}\raggedright
+\vbox to 3.1in{
+\Subheading{World-wide web}
+\begin{itemize}
+\item navigating document collections
+\item multimedia documents
+\item hypertext cross-references
+\item hypertext markup language (HTML)
+\item hypertext transfer protocol (HTTP)
+\item Tim Berners-Lee at CERN, 1989--1992
+\end{itemize}
+\vfil}
+\end{minipage}
+\hfil
+\begin{minipage}{0.4\textwidth}\begin{flushright}%
+\includegraphics[height=3.1in]{diagrams/sir_tim_berners-lee_cropped}%
+\end{flushright}\end{minipage}%
+\end{slide}
+
+\begin{slide}
+\Subheading{The evolving web}
+\begin{flushleft}
+\begin{tabular}{@{}l|l|l|>{\rightskip 0pt plus 1fil}p{1.5in}@{}}
+\textbf{generation} & \textbf{access} & \textbf{technology} & \textbf{example} 
+  \\ \hline
+\textit{first} & manual & browser & arbitrary HTML \\
+\textit{second} & programmatic & screen-scraper & systematic HTML \\
+\textit{third} & standardized & web service & formally described service \\
+\textit{fourth} & semantic & semantic WS & semantically described service
+\end{tabular}
+\end{flushleft}
+The \emph{deep web} dominates the \emph{surface web}. 
+\end{slide}
+
+\begin{slide}
+\Subheading{Some definitions}
+\begin{flushleft} 
+{\sffamily
+	A \emph{web service} is an interface that describes a
+	collection of operations that are network accessible through
+	standardized XML messaging. A web service is described using a
+	standard, formal XML notion, called its \emph{service
+	description}. It covers all the details necessary to interact
+	with the service, including message formats (that detail the
+	operations), transport protocols and location. The interface
+	\emph{hides the implementation} details of the service, allowing it
+	to be used independently of the hardware or software platform
+	on which it is implemented and also independently of the
+	programming language in which it is written. This allows and
+	encourages WS-based applications to be \emph{loosely
+	coupled, component-oriented, cross-technology}
+	implementations. 
+} \medskip \\
+(IBM Web Services Conceptual Architecture, 2001)
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\begin{flushleft}
+{\sffamily
+The basic idea behind web services is to adapt the \emph{loosely coupled web
+programming model} for use in applications that are not
+browser-based. The goal is to provide a platform for building
+distributed applications using software running on different operating
+systems and devices, written using different programming languages and
+tools from multiple vendors, all potentially developed and deployed
+independently.
+} \medskip \\
+(Understanding XML Web Services: The Web Services Idea. Tim Ewald,
+Microsoft, 2002)
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\begin{flushleft}
+{\sffamily
+A Web service is any executable code (program) that can be
+\emph{discovered, described, and invoked} using XML-based messages via
+Internet-based protocols.
+[\ldots]
+Today, the leading XML-based standards are UDDI for discovery, WSDL
+for description, as well as SOAP and ebXML for XML message handling
+and service invocation. 
+} \medskip \\
+(Sun ONE FAQ)
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\begin{flushleft}
+{\sffamily
+A web service is a software system designed to support
+interoperable machine-to-machine interaction over a network. It has an
+interface described in a machine-processable format (specifically
+WSDL). Other systems interact with the web service in a manner
+prescribed by its description using SOAP-messages, typically conveyed
+using HTTP with an XML serialization in conjunction with other
+web-related standards.
+} \medskip \\
+(\url{http://www.w3.org/TR/ws-arch/\#whatis})
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+\Subheading{Web services architecture (W3C)}
+\begin{quote}
+\includegraphics[width=0.9\linewidth]{diagrams/WSA_STACK}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{Publish--find--bind}
+\begin{quote}
+\includegraphics[width=0.9\linewidth]{diagrams/publish-find-bind}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{Alphabet soup}
+\begin{tabular}{@{}ll@{}}
+\acro{SOAP} & Simple Object Access Protocol \\
+\acro{WSDL} & Web Services Description Language \\
+\acro{UDDI} & Universal Description, Discovery, and Integration \\
+\acro{HTTP} & Hypertext Transfer Protocol \\
+\acro{SSL/TLS} & Secure Sockets Layer/Transport Layer Security \\
+\acro{HTTPS} & HTTP over SSL \\
+\acro{WS-I} & Web Services Interoperability \\
+\acro{WSFL} & Web Services Flow Language \\
+\acro{WSIL} & Web Services Inspection Language \\
+\acro{WSCL} & Web Services Co-ordination Language \\
+\acro{BPEL4WS} & Business Process Execution Language for Web Services \\
+\end{tabular}\end{slide}\begin{slide}\Subheading*{XML}\begin{tabular}{@{}ll@{}}
+\acro{XML} & eXtensible Markup Language \\
+\acro{DTD} & XML Datatype definition language \\
+\acro{XML-Schema} & (specifying validity of XML documents)\\
+\acro{XSLT} & eXtensible Stylesheet Language for Transformations \\
+\acro{XPath} & XML Path Language \\
+\acro{XML namespaces} & (scoping of identifiers)\\
+\end{tabular}\end{slide}\begin{slide}\Subheading*{Grid}\begin{tabular}{@{}ll@{}}
+\acro{OGSI} & Open Grid Services Infrastructure \\
+\acro{OGSA} & Open Grid Services Architecture \\
+\acro{DAML} & DARPA Agent Markup Language \\
+\acro{XACML} & eXtensible Access Control Markup Language \\
+\acro{SAML} & Security Assertion Markup Language \\
+\end{tabular}\end{slide}\begin{slide}\Subheading*{Java}\begin{tabular}{@{}ll@{}}
+\acro{JSF} &  JavaServer Faces \\
+\acro{JAXB} & Java Architecture for XML Binding \\
+\acro{JAXP} & Java API for XML Processing  \\
+\acro{JAXR} & Java API for XML Registries  \\
+\acro{JAX-RPC} & Java API for XML-based RPC  \\
+\acro{SAAJ} & SOAP with Attachments API for Java  \\
+\acro{JSTL} & JavaServer Pages Standard Tag Library \\
+\acro{WSDP} & Sun Java Web Services Developer Pack \\
+\acro{WSTK}, \acro{ETTK} & IBM Web Services Toolkit \\
+\acro{AXIS} & Apache SOAP implementation \\
+\acro{WSIF} & Web Services Invocation Framework \\
+\end{tabular}\end{slide}\begin{slide}\Subheading*{\ldots and other languages}\begin{tabular}{@{}ll@{}}
+\acro{gSOAP} & C++ Toolkit for Web Services \\
+\acro{.NET} & Microsoft; bindings for many languages \\
+\acro{SOAPpy} & Python Web Services \\
+\acro{SOAP::Lite} & Perl library for Web Services \\
+\acro{HAIFA} & Haskell library for Web Services \\
+\acro{SOAP4R} & Ruby implementation of SOAP 1.1 \\
+\end{tabular}\end{slide}\begin{slide}\Subheading*{Organizations}\begin{tabular}{@{}l>{\rightskip 0pt plus 1fil}p{0.9\textwidth}@{}}
+	\acro{OASIS} & Organization for the Advancement of Structured Information Standards\\
+	\acro{W3C} & World-Wide-Web Consortium \\
+	\acro{JSR} & Java Standards \\
+	\acro{IETF} & Internet Engineering Task Force \\
+	\acro{GGF} & Global Grid Forum \\
+	\acro{WS-I} & Web Services Interoperability Organization
+\end{tabular}\end{slide}\begin{slide}\Subheading*{WS-\maths{\ast}}\begin{flushleft}
+\acro{WS-Security}
+\acro{WS-Policy}
+\acro{WS-SecurityPolicy}
+\acro{WS-PolicyAssertions}
+\acro{WS-PolicyAttachment}
+\acro{WS-Trust}
+\acro{WS-Privacy}
+\acro{WS-Routing}
+\acro{WS-Referral}
+\acro{WS-Coordination}
+\acro{WS-Transaction}
+\acro{WS-SecureConversation}
+\acro{WS-Federation}
+\acro{WS-Authorization}
+\acro{WS-Inspection}
+\acro{WS-Attachments}
+\acro{WS-ReliableMessaging}
+\acro{WS-Addressing}
+
+\medskip
+
+\acro{WS-Notification} 
+\acro{WS-ResourceProperties}
+\acro{WS-ResourceLifetime}
+\acro{WS-RenewableReferences}
+\acro{WS-ServiceGroup}
+\acro{WS-BaseFaults}
+
+\medskip
+
+\acro{WS-CAF}~(composite~applications);
+\acro{WS-CTX}~(context);
+\acro{WS-CF}~(coordination);
+\acro{WS-TXM}~(transaction~management)
+\end{flushleft}
+\end{slide}
+
+\begin{slide}
+ 	\Subheading{A challenge}
+ 	\begin{itemize}
+ 	\item Which ones exist?
+ 	\item Which ones are \emph{de facto} standards?
+ 	\item Which ones are standardized?	
+ 	\item Which ones are being superseded?
+ 	\item Which ones layer on which other ones?
+ 	\item Which ones matter?
+ 	\end{itemize}
+ \end{slide}
+
+\begin{slide}
+\Heading{XML, in a nutshell}
+\begin{itemize}
+\item IBM GML (1969) $\to$ SGML (1986) $\to$ HTML (1991), XML (1996)
+\item nested \emph{tags}: tree structure, regular syntax, simple to parse
+\item tags may have \emph{attributes} and surround \emph{text}
+\item \emph{well-formedness} vs \emph{validity}
+\item constraints, typing: DTD, XML Schema, RELAX NG
+\item \emph{namespaces} for qualified names, disambiguation
+\item Extensible Stylesheet Language Transformations (XSLT)
+\item XPath for \emph{locations} within XML documents
+\item XQuery for \emph{extracting fragments} of XML documents
+\item programmatic traversal: \emph{event-based} SAX, \emph{tree-based} DOM
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{HTTP}
+\begin{itemize}
+\item two-way transmission of requests and responses
+\item layered over TCP
+\item essentially stateless (but\ldots)
+\item standard extensions for security
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Network layers}
+\begin{quote}
+\begin{tabular}{@{}rl@{}}
+\textit{OSI model} \phantom{$\}$} & \textit{internet stack} \\ \hline
+  \vrule width 0pt height 5ex
+  \maths{\left. \begin{tabular}{@{}r@{}}
+  application \\
+  presentation
+  \end{tabular} \right\}} & application \\[3ex]
+  \maths{\left. \begin{tabular}{@{}r@{}}
+  session \\
+  transport
+  \end{tabular} \right\}} & TCP, UDP \\[3ex]
+  \maths{\left. \begin{tabular}{@{}r@{}}
+  network
+  \end{tabular} \right\}} & IP \\[2ex]
+  \maths{\left. \begin{tabular}{@{}r@{}}
+  datalink \\
+  physical
+  \end{tabular} \right\}} & ethernet (802.3), wifi (802.11)
+\end{tabular}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{Methods}
+\begin{itemize}
+\item \keyword{GET} $uri$
+\begin{quote}
+read a document; should be ``safe''
+\end{quote}
+\item \keyword{PUT} $uri, data$
+\begin{quote}
+create or modify a resource; should be idempotent
+\end{quote}
+\item \keyword{POST} $uri, data$
+\begin{quote}
+create a subordinate resource
+\end{quote}
+\item \keyword{DELETE} $uri$
+\begin{quote}
+delete a resource; should be idempotent
+\end{quote}
+\end{itemize}
+(also \keyword{HEAD}, \keyword{TRACE}, \keyword{OPTIONS}, \keyword{CONNECT})
+\end{slide}
+
+\begin{slide}
+\Subheading{Identifying resources}
+\begin{itemize}
+\item \emph{uniform resource identifier} (URI)
+\item \emph{uniform resource locator} (URL)
+\item \emph{uniform resource name} (URN)
+\end{itemize}
+For a large class of schemes, the syntax is
+$$
+\langle scheme \rangle 
+\verb"://"
+\langle authority \rangle
+\langle path \rangle
+\verb"?"
+\langle query \rangle
+$$
+
+The \emph{classical view} is that URIs are partitioned into URLs (which describe a primary access mechanism, eg \verb"http:") and URNs (which do not, eg \verb"isbn:", and need a separate resolver).
+
+The \emph{contemporary view} is that URIs may define subspaces; \verb"http:" is a URI scheme, and \verb"urn:isbn:" is a URN namespace. `URL' is somewhat deprecated. 
+\end{slide}
+
+\begin{slide}
+\Subheading{HTTP v1.1 request}
+$ \langle method \rangle \; \langle path \rangle \; \verb"HTTP/1.1" $ \\
+$ \langle headers \rangle $ \\
+blank line \\
+optional $ \langle body \rangle $
+\begin{itemize}
+\item \keyword{Accept}, \keyword{Accept-Encoding}, \keyword{Accept-Language}, \ldots
+\item \keyword{Authorization} (actually, it's authentication, obfuscated)
+\item \keyword{Cookie} data returned from previous response
+\item \keyword{Host} domain name, mandatory in v1.1
+\item \keyword{If-Modified-Since}
+\item \keyword{Referer} [sic]: URI of resource providing request URI
+\item \keyword{User-Agent} application/version
+\item \keyword{Connection} for keep-alive
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Response}
+$ \verb"HTTP/1.1" \; \langle code \rangle \; \langle reason \rangle $ \\
+$ \langle headers \rangle $ \\
+blank line \\
+optional $ \langle body \rangle $
+\begin{itemize}
+\item \keyword{Content-Length}, \keyword{Content-Language}, \keyword{Content-Type}\ldots
+\item \keyword{Date}, mandatory in v1.1
+\item \keyword{Last-Modified}
+\item \keyword{Set-Cookie}
+\item \keyword{Location} for redirects (3xx)
+\item \keyword{Retry-After} for temporary unavailability (503)
+\item \keyword{Keep-Alive}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Status codes}
+\begin{minipage}{0.4\textwidth}
+\begin{tabular}{@{}ll@{}}
+100 & Continue \\[1ex] % eg to send body - the headers were ok
+200 & OK \\ % standard response (to GET)
+201 & Created \\ % new resource created (from PUT?)
+202 & Accepted \\ % accepted for processing, but processing not complete
+204 & No Content \\[1ex]
+301 & Moved Permanently \\
+303 & See Other \\
+304 & Not Modified \\
+307 & Temporary Redirect \\[1ex]
+\end{tabular}
+\end{minipage}
+\hfil
+%
+\begin{minipage}{0.4\textwidth}
+\begin{tabular}{@{}ll@{}}
+400 & Bad Request \\
+401 & Unauthorized \\
+402 & Payment Required \\
+403 & Forbidden \\
+404 & Not Found \\
+410 & Gone \\[1ex]
+500 & Internal Error \\
+501 & Not Implemented \\
+503 & Service Unavailable 
+\end{tabular}
+\end{minipage}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example: request}
+\begin{verbatim}
+GET /index_nlp.html HTTP/1.1
+Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, 
+  application/vnd.ms-powerpoint, application/vnd.ms-excel, 
+  application/msword, application/x-shockwave-flash, */*
+Accept-Language: en-gb
+Accept-Encoding: gzip, deflate
+User-Agent: Mozilla/4.0 (compatible; MSIE 6.0...)
+Host: portal.free-online.net
+Connection: Keep-Alive
+Cookie: Example_Session=40eabfeb7504452c3306fc2e46ceef01
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example: response headers}
+\begin{verbatim}
+HTTP/1.1 200 OK
+Date: Thu, 03 Jul 2003 16:33:04 GMT
+Server: Apache/1.3.26
+X-Powered-By: PHP/4.0.6
+X-Accelerated-By: PHPA/1.3.3r1
+Keep-Alive: timeout=5, max=28
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+Content-Type: text/html
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example: response body}
+\begin{verbatim}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>[ Free-Online ] - The easy to use internet service</TITLE>
+<META content="text/html; charset=iso-8859-1">
+...
+</HEAD>
+<body leftmargin="0" topmargin="0">
+<!-- BEGIN HEADER -->
+<table width="100\%" border="0" cellspacing="0" cellpadding="0">
+...
+</table>
+</body>
+</HTML>
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\Subheading{Redirection}
+\begin{quote}
+\includegraphics[height=0.8\textheight]{diagrams/http-redirect}
+\end{quote}
+\end{slide}
+
+%\begin{slide}
+%\Subheading{Cookies}
+% something about clever use of redirection to enforce presentation of cookie
+%\begin{quote}
+%\includegraphics[height=0.8\textheight]{diagrams/cookie-sequence}
+%\end{quote}
+%\end{slide}
+
+\begin{slide}
+\Subheading{Authentication}
+\begin{quote}
+\includegraphics[height=0.8\textheight]{diagrams/http-authz}
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Heading{Simple Object Access Protocol (SOAP)}
+\begin{itemize}
+\item \keyword{Envelope}, consisting of \keyword{Header} and \keyword{Body}
+\item all this in XML
+% \item SOAP XML Schema: see appendix
+\item serialization \url{http://schemas.xmlsoap.org/soap/encoding/} 
+% \item uses namespaces \emph{instead of version numbers}
+\item now just a name, not an acronym: not simple, and not about object access!
+(see \emph{The `S' Stands for `Simple'})
+% \url{http://wanderingbarque.com/nonintersecting/2006/11/15/the-s-stands-for-simple/}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{SOAP envelope structure}
+\begin{xml}
+<SOAP-ENV:Envelope
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  SOAP-ENV:encoding-style="http://schemas.xmlsoap.org/soap/encoding/">
+  <SOAP-ENV:Header>
+    ...
+  </SOAP-ENV:Header>
+  <SOAP-ENV:Body>
+    ...
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+	\Subheading{SOAP headers}
+
+	\begin{itemize}
+	\item optional
+	\item essentially free-form XML
+	\item major extensibility capability
+	\item a few attributes are pre-defined:
+\begin{itemize}
+	\item \keyword{mustUnderstand} attribute set to \keyword{1} 
+		for a header element that must be processed; recipient
+		must abort if it cannot
+	\item \keyword{SOAP-ENV:actor} indicates URI for server 
+		(intermediary) which
+		should process a given header;
+ typically for overhead information: authentication,
+	authorization, transaction management, trace, audit, routing
+\end{itemize}
+	\item logically the body could just be a header with 
+		\xmlfrag{mustUnderstand="1"} (but it is not)
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Example SOAP message}
+\begin{xml}
+<?xml version="1.0" encoding="UTF-8"?>
+<env:Envelope 
+  xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:enc="http://schemas.xmlsoap.org/soap/encoding/" 
+  xmlns:ns0="http://hello.org/wsdl">
+  <env:Body>
+    <ns0:sayHelloBackResponse 
+      env:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+      <result xsi:type="xsd:string">
+        \xmlemph{Hi JAXRPC Sample From Server for wsdl client}
+      </result>
+    </ns0:sayHelloBackResponse>
+  </env:Body>
+</env:Envelope>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subheading{SOAP body}
+
+Arbitrary XML~---
+but there is a standard format for fault reporting:
+\begin{xml}
+<SOAP-ENV:Fault>
+  \xmlemph{<faultcode> ... </faultcode>}
+  \xmlemph{<faultstring> ... </faultstring>}
+  <faultactor> ... </faultactor>
+  <detail> ... </detail>
+</SOAP-ENV:Fault>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subheading{SOAP validation}
+\begin{itemize}
+\item against schema
+\item against WSDL description
+\item through use of toolkits: developer never writes SOAP directly
+\item great scope for non-interoperability!
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{Processing model}
+Upon receiving a SOAP message, a SOAP application must:
+\begin{enumerate}
+	\item determine whether it understands the version of SOAP
+		detailed in the namespace attribute of the SOAP
+		envelope~---  if not, must discard message with
+		\xmlfrag{VersionMismatch} error;
+	\item identify all parts of the message intended for the application
+		(intermediary or final recipient);
+	\item verify mandatory parts of message, including
+  	    \xmlfrag{mustUnderstand}~--- else \xmlfrag{mustUnderstand}
+  	    error, or application error;
+	\item process all mandatory parts, plus optional parts it
+		understands;
+	\item if not the final recipient, remove the headers it
+		has processed before passing the message forward.
+\end{enumerate}
+\end{slide}
+
+\begin{slide}
+\Subheading{SOAP body: data models}
+
+	\begin{itemize}
+	\item standardized encodings for complex datatypes
+	\item SOAP envelope namespace defines \xmlfrag{encodingStyle}
+		attribute
+	\item well-defined mapping between abstract data models 
+		(ADMs) and XML
+	\item XMLSchema types, simple \& compound types, structs, arrays
+	\item careful treatment of references;
+ inclusion of XML is easy; care with namespaces; more care
+		with \xmlfrag{id} attributes;
+ binary data within \xmlfrag{<SOAP-ENC:base64>}
+	\item \emph{serializers} and \emph{deserializers} convert 
+		application data \maths{\leftrightarrow} XML
+%	\item custom ones are possible (using schema compilers)
+	\item construction of XML can be left to the message creation
+		stage, or can take place at a higher level in the application
+		(compare RPC and document-centric approaches)
+	\item encodings include: SOAP encoding; Literal XML; XMI % (XML Metadata Interchange)
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{SOAP shortcomings}
+
+	\begin{itemize}
+	\item simplistic assumption that data to be exchanged is method
+	input/output parameters
+	\item not all data is suitable for serialization into XML
+	\item MIME attachments are added to SOAP, complexity results
+	\item need for higher-level standards for security, reliable
+	messaging, coordination, transaction, context, etc
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Web Services Description Language (WSDL)}
+	\begin{itemize}
+	\item key interface definition language for web services
+	\item XML document(s), hence verbose
+	\item essence of interoperability
+	\item most toolkits generate WSDL from service code 
+	\item most toolkits generate client code from WSDL
+	\item largely, then, a machine format!
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{WSDL components}
+
+	\begin{description}
+	\item[types] potentially heavily structured XML data 
+	\item[message] (abstractly) one for each interaction; 0 or more parts in each
+	\item[operation] abstract operation/method, defined by its messages
+	\item[portType] set of abstract operations 
+\bigskip
+
+	\item[binding] joins operations to transport protocols
+	\item[port] endpoint; address for binding
+	\item[service] collection of related ports
+	\end{description}
+
+\end{slide}
+
+\begin{slide}
+	\includegraphics[width=\linewidth]{diagrams/wsdl}
+\end{slide}
+
+\begin{slide}
+\Subheading{Abstract and concrete}
+\begin{itemize}
+\item the \keyword{portType} is the abstract interface definition
+\item \emph{binding} makes it concrete --- `use HTTP'
+\begin{quote}
+the same abstract interface may be available with various concrete bindings
+\end{quote}
+\item \emph{port} describes where to find an implementation of the binding
+\begin{quote}
+a single binding could be available at several locations
+\end{quote}
+	 \end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Example: Google Web API}
+
+	\begin{itemize}	
+	\item three methods: search, spell, fetch from cache
+	\item return rich data structures with all the entry data 
+		seen on the search page
+	\item think of an application!
+        \item (now sadly obsolete)
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{GoogleSearch.wsdl}
+\begin{xml}
+<definitions 
+  name="GoogleSearch"
+  targetNamespace="urn:GoogleSearch"
+  xmlns:typens="urn:GoogleSearch"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+  xmlns="http://schemas.xmlsoap.org/wsdl/">
+\end{xml}
+[in the following, the sections are not presented in order]
+\end{slide}
+
+\begin{slide}
+	\Subheading{PortType}
+	\begin{itemize}
+	\item a number of operations, characterized by their messages
+	\item messages may be named
+	\item may optionally specify a number of fault messages, to be 
+		returned in place of second message
+	\item (Google uses a generic SOAP Fault to report `bad key' 
+		and `max exceeded')
+	\end{itemize}
+\bigskip
+
+\begin{xml}
+<portType name="\xmlemph{GoogleSearchPort}">
+  <operation name="\xmlemph{doGoogleSearch}">
+    <input message="typens:doGoogleSearch"/>
+    <output message="typens:doGoogleSearchResponse"/>
+  </operation>
+</portType>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Operation types}
+
+	\begin{itemize}
+	\item one-way  (just \xmlfrag{<input>})
+	\item request-response (\xmlfrag{<input>}, \xmlfrag{<output>})
+	\item notify (\xmlfrag{<output>})
+	\item solicit-response (\xmlfrag{<output>}, \xmlfrag{<input>})
+	\item HTTP only supports first two naturally
+	\item use higher-level constructs for more complex interactions,
+		and to set up end-points for notification and solicitation
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Message}
+	\begin{itemize}
+	\item named sequence of parts, each with name and type
+	\item \xmlfrag{binding} element describes how these are mapped onto
+		transport protocol representations
+	\end{itemize}
+
+\begin{xml}
+<message name="\xmlemph{doGoogleSearch}">
+  <part name="key"            type="xsd:string"/>
+  <part name="q"              type="xsd:string"/>
+  <part name="start"          type="xsd:int"/>
+  <part name="maxResults"     type="xsd:int"/>
+  <part name="safeSearch"     type="xsd:boolean"/>
+  ...
+</message>
+
+<message name="doGoogleSearchResponse">
+  <part name="return"         type="typens:GoogleSearchResult"/>           
+</message>
+\end{xml}
+\end{slide}
+	
+\begin{slide}
+	\Subheading{Types}
+
+	\begin{itemize}
+	\item XMLSchema provides the basic type system
+	\item repeating groups must be modelled using the \xmlfrag{array}
+		data type of the SOAP encoding namespace
+	\end{itemize}
+\begin{xml}
+<types> <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" 
+                    targetNamespace="urn:GoogleSearch">
+
+  <xsd:complexType name="\xmlemph{GoogleSearchResult}">
+    <xsd:all>
+      <xsd:element name="estimatedTotalResultsCount" type="xsd:int"/>
+      <xsd:element name="resultElements" 
+                   type="typens:ResultElementArray"/>
+      ...
+      <xsd:element name="searchTime" type="xsd:double"/>
+    </xsd:all>
+  </xsd:complexType>
+\end{xml}\end{slide}\begin{slide}\begin{xml}
+  <xsd:complexType name="\xmlemph{ResultElement}">
+    <xsd:all>
+      <xsd:element name="summary" type="xsd:string"/>
+      <xsd:element name="URL" type="xsd:string"/>
+      <xsd:element name="snippet" type="xsd:string"/>
+      <xsd:element name="title" type="xsd:string"/>
+      ...
+    </xsd:all>
+  </xsd:complexType>
+  <xsd:complexType name="ResultElementArray">
+    <xsd:complexContent>
+      <xsd:restriction base="soapenc:Array">
+        <xsd:attribute ref="soapenc:arrayType" 
+          wsdl:arrayType="typens:ResultElement[]"/>
+      </xsd:restriction>
+    </xsd:complexContent>
+  </xsd:complexType>
+</xsd:schema> </types>
+\end{xml}\end{slide}
+
+\begin{slide}
+	\Subheading{Binding}
+
+	\begin{itemize}
+	\item how to format the message for a particular transport
+	\item binding gets a unique name; type relates to portType
+	\item convenient for re-use if just one portType and one binding
+	\item \xmlfrag{soap:binding} indicates SOAP over HTTP, 
+		and in \xmlfrag{rpc} style rather than \xmlfrag{document}
+	\item could instead have SOAP over SMTP or over FTP
+	\item SOAP action is carried over into an HTTP header; describes intent
+		(use deprecated)
+	\item input and output messages encoded in SOAP message body
+	\item to use an SMTP binding, we would need to change the \xmlfrag{transport} tag, maybe select document-centric processing, set the address to be
+a \xmlfrag{mailto:} (see below), etc
+	\end{itemize}
+\end{slide}
+\begin{slide}
+\begin{xml}
+  <binding name="GoogleSearchBinding" type="typens:GoogleSearchPort">
+    <soap:binding style="rpc"
+      transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="doGoogleSearch">
+      <soap:operation soapAction="urn:GoogleSearchAction"/>
+      <input>
+        <soap:body use="encoded"
+          namespace="urn:GoogleSearch"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </input>
+      <output>
+        <soap:body use="encoded"
+          namespace="urn:GoogleSearch"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </output>
+    </operation>
+  </binding>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+\Subheading*{Document and RPC style, encoded and literal}
+\begin{itemize}
+\item RPC-style binding
+\begin{quote}
+message body contains one element, named after operation; parameters or return value as sub-elements of this wrapper
+\end{quote}
+\item document-style binding
+\begin{quote}
+message body contains arbitrary XML document, not necessarily conforming to SOAP rules (the default)
+\end{quote}
+\item encoded appearance of message
+\begin{quote}
+XML structure is `abstract'; encode as per \xmlfrag{encodingStyle}
+\end{quote}
+\item literal appearance of message
+\begin{quote}
+XML structure is `concrete'
+\end{quote}
+\item \xmlfrag{document/encoded} is never used
+\item \xmlfrag{use="encoded"} is deprecated by WS-I anyway
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Port, Service}
+\begin{itemize}
+
+	\item gives the network address for the binding
+	\item service could list several ports (e.g. one bound to HTTP and one bound to SMTP)
+\end{itemize}
+
+\begin{xml}
+  <service name="\xmlemph{GoogleSearchService}">
+    <port name="GoogleSearchPort" binding="\xmlemph{typens:GoogleSearchBinding}">
+      <soap:address location="http://api.google.com/search/beta2"/>
+    </port>
+  </service>
+</definitions>
+\end{xml}
+\end{slide}
+
+\begin{slide}
+	\Subheading{WSDL: Other features}
+	
+	\begin{itemize}
+	\item any WSDL element can contain a \xmlfrag{<documentation>}
+	element, with free-form comments
+
+	\item WSDL document can be split into parts, and an \xmlfrag{<import>}
+	element used to recombine;  naturally, the included elements
+	are pointed to by a URI
+
+	\item a plain HTTP GET/POST binding is possible
+	(so we could write WSDL that describes regular form processing)
+
+	\item MIME can also be used
+	\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+Approximately:
+
+\begin{xml}
+<binding name="SearchHTTPBinding" type="typens:GoogleSearchPort">
+  <http:binding verb="GET"/>
+  <operation name="doGoogleSearch">
+    <http:operation location="search"/>
+    <input>
+      <http:urlEncoded/>
+    </input>
+    <output>
+      <mime:content type="text/html"/>
+    </output>
+  </operation>
+</binding>
+\end{xml}
+\end{slide}	
+
+\begin{slide}
+	\Subheading{Criticising WSDL}
+	\begin{itemize}
+	\item rudimentary treatment of semantics
+	\item separate documentation generally required
+	\item low-level; use other languages for co-ordination, transactions, etc.
+        \item multiple purposes (logical/architectural/operational)
+\begin{quote}
+convenient for consumer to get all at once, but not for producer(s):
+WSDL should be a derived format
+\end{quote}
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Heading{Universal Description, Discovery, and Integration (UDDI)}
+\begin{itemize}
+	\item centralized registry of services
+        \item supporting a \emph{marketplace}: providers, consumers, brokers
+	\item manually searchable through web site:
+		`\emph{static web services}'
+	\item programmatically searchable through API:
+		`\emph{dynamic web services}'
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Registries}
+
+	\begin{itemize}
+	\item major, public: \url{uddi.microsoft.com},
+	\url{uddi.ibm.com} etc,    \emph{mirrored}
+	\item public test: \url{test.uddi.ibm.com}
+	\item private --- in a large organisation, for internal
+	management
+	\item semi-private --- `extranets' etc.
+\bigskip
+	\item operate as web servers, web services
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Registry terminology}
+
+	\begin{itemize}
+	\item \emph{business entity}: info about service provider; `white pages'
+	\item \emph{business service}: non-technical categorization of
+		service provided; `yellow pages'
+	\item \emph{taxonomy}: business standard descriptions
+	\item \emph{publisher assertions}: business relationships
+	\item \emph{binding template}: technical service access information;
+		often a URI, WSDL port; `green pages'
+	\item \emph{tModel (technical model)}: meta-data for service;
+		could be text, WSDL document 
+	\end{itemize}
+\end{slide}
+
+\begin{slide}
+	\Subheading{tModels}
+
+	\begin{itemize}
+	\item tModels are the key
+	\item but are specified outside UDDI
+	\item expected to be published by industry consortia
+	\item programmers retrieve model description and implement
+		a service which claims to conform
+	\item detailed specifications stay with the owner,
+		not in the registry
+	\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+	\Subheading{Registry structure}
+
+	\includegraphics[height=0.8\textheight]{diagrams/uddi}
+
+\end{slide}
+
+\begin{slide}
+	\Subheading{Searching}
+
+	Methods to search on each kind of data:
+\begin{quote}	
+	$find\_business()$, $find\_service()$, 
+		$find\_binding()$, $find\_tModel()$
+\end{quote}
+	\bigskip
+
+	Methods to get the corresponding data:
+\begin{quote}
+	$get\_businessDetail()$,
+	$get\_serviceDetail()$,
+	etc
+\end{quote}
+\end{slide}
+
+\begin{slide}
+	\Subheading{Publishing}
+\begin{quote}
+	$save\_business()$, $save\_service()$,
+	$delete\_business()$, etc
+	--- usually requires authentication!
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Subheading{UDDI shortcomings}
+\begin{itemize}
+\item UDDI Business Registry shut down in January 2006:
+\begin{flushleft}
+\includegraphics[width=\textwidth]{diagrams/uddi-shutdown}
+\end{flushleft}
+\item mission accomplished!
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+Actually, it didn't work in practice:
+\begin{quote} 
+{\sffamily
+% Basically, the UBR is a relic of an earlier vision for UDDI. The original vision for UDDI was as a standard that would help companies conduct business with each other in an automated fashion. 
+The idea was that companies could publish how they wanted to interact, and other companies could find that information and use it to establish a relationship.
+Needless to say, this isn't how companies do business -- there's always a human element to establishing a relationship. As a result, the UBR served as little more than an interoperability reference implementation. 
+% Now that UDDI has become more of a metadata management standard for SOA, there's little need for the UBR anymore.
+} \medskip \\
+(Jason Bloomberg, \textit{ZapThink}, quoted in \textit{InfoWorld} 2005-12-16)
+% http://www.infoworld.com/article/05/12/16/HNuddishut_1.html
+\end{quote}
+\bigskip
+\begin{quote} 
+{\sffamily
+There was no quality enforcement or governance on the UBR, because there was no direct funding.  Anyone could publish.  No one was checking quality or doing garbage collection.  So there was lots of, um, low-quality data in the UBR.
+} \medskip \\
+(Dino Chiesa, \textit{All About Interop}, 2005-12-16)
+% http://blogs.msdn.com/dotnetinterop/archive/2005/12/16/504648.aspx
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\Heading{Web services in practice}
+\begin{itemize}
+\item not just one standard, but many~--- 70+!
+\item three different standards organisations (W3C, OASIS, WS-I)
+\item even for the fundamental five, interoperability isn't automatic
+\item hence WS-I, `the standards organization for standardizing the standards' (2002--)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\Subheading{WS-I profiles}
+\begin{itemize}
+\item specific versions of specific standards
+\item plus guidelines and conventions for interoperability
+\item WS-I Basic Profile 1.1 (2004): XML~1.0, WSDL~1.1, SOAP~1.1, HTTP~1.1, UDDI~v2
+\begin{quote} \leavevmode
+\rlap{\url{http://www.ws-i.org/Profiles/BasicProfile-1.1.html}}
+\end{quote}
+\item also WS-I Basic Security Profile 1.0 (2007)
+\begin{quote} \leavevmode 
+\rlap{\url{http://www.ws-i.org/Profiles/BasicSecurityProfile-1.0.html}}
+\end{quote}
+\item interoperability still an issue outside these profiles
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\includegraphics[height=\textheight]{diagrams/innoQ-WS-Standards-Poster-2007-02}
+\end{slide}
+
+\begin{slide}
+  \Listofslides
+\end{slide}
+
+\begin{slide}
+  \Timetable
+\end{slide}
+
+\end{document}
