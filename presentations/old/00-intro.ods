@@ -1,0 +1,166 @@
+<text:list text:style-name="L1">
+  <text:list-item>
+    <text:p text:style-name="P1">understanding of principles</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P1">engagement with phenomenology</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P1">exploration of emerging
+    standards</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P1">some investigation of practical
+    toolkits</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P1">situation in wider context</text:p>
+  </text:list-item>
+</text:list>
+<text:p text:style-name="First_20_paragraph">At the start of the course
+you should:</text:p>
+<text:list text:style-name="L2">
+  <text:list-item>
+    <text:p text:style-name="P2">fully understand principles of object
+    orientation</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P2">be fluent in programming in
+    Java</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P2">have a reading knowledge of UML and
+    XML</text:p>
+  </text:list-item>
+</text:list>
+<text:list text:style-name="L3">
+  <text:list-item>
+    <text:p text:style-name="P3"><text:a xlink:type="simple" xlink:href="01-components.pdf" office:name=""><text:span text:style-name="Definition">components</text:span></text:a></text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P3"><text:a xlink:type="simple" xlink:href="02-web.pdf" office:name=""><text:span text:style-name="Definition">web
+    services</text:span></text:a></text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P3"><text:a xlink:type="simple" xlink:href="03-rest.pdf" office:name=""><text:span text:style-name="Definition">REST</text:span></text:a></text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P3"><text:a xlink:type="simple" xlink:href="04-qualities.pdf" office:name=""><text:span text:style-name="Definition">qualities</text:span></text:a></text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P3"><text:a xlink:type="simple" xlink:href="05-composition.pdf" office:name=""><text:span text:style-name="Definition">composition</text:span></text:a></text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P3"><text:a xlink:type="simple" xlink:href="06-objects.pdf" office:name=""><text:span text:style-name="Definition">services
+    vs objects</text:span></text:a></text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P3"><text:a xlink:type="simple" xlink:href="06-architecture.pdf" office:name=""><text:span text:style-name="Definition">software
+    architecture</text:span></text:a></text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P3"><text:a xlink:type="simple" xlink:href="08-semantic.pdf" office:name=""><text:span text:style-name="Definition">semantic
+    web</text:span></text:a></text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P3"><text:a xlink:type="simple" xlink:href="09-engineering.pdf" office:name=""><text:span text:style-name="Definition">engineering</text:span></text:a></text:p>
+  </text:list-item>
+</text:list>
+<text:list text:style-name="L4">
+  <text:list-item>
+    <text:p text:style-name="P4">objects (OOR, OOD, OOP, DPA,
+    SPL)</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P4">formal techniques (SEM, SDE)</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P4">concurrency (CDS, ACT, MOB)</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P4">security (SPR, SRO, DES, NES)</text:p>
+  </text:list-item>
+</text:list>
+<text:list text:style-name="L5">
+  <text:list-item>
+    <text:p text:style-name="P5">Singh &amp; Huhns,
+    <text:span text:style-name="T1">Service-Oriented</text:span><text:span text:style-name="T2">
+    </text:span><text:span text:style-name="T3">Computing</text:span>
+    (Wiley, 2005)</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P5">Josuttis,
+    <text:span text:style-name="T4">SOA</text:span><text:span text:style-name="T5">
+    </text:span><text:span text:style-name="T6">in</text:span><text:span text:style-name="T7">
+    </text:span><text:span text:style-name="T8">Practice</text:span>
+    (O’Reilly, 2007)</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P5">Erl,
+    <text:span text:style-name="T9">SOA</text:span> (Prentice-Hall,
+    2005)</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P5">Szyperski,
+    <text:span text:style-name="T10">Component</text:span><text:span text:style-name="T11">
+    </text:span><text:span text:style-name="T12">Software</text:span>
+    (Addison-Wesley, 2e 2002)</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P5">Richardson &amp; Ruby,
+    <text:span text:style-name="T13">RESTful</text:span><text:span text:style-name="T14">
+    </text:span><text:span text:style-name="T15">Web</text:span><text:span text:style-name="T16">
+    </text:span><text:span text:style-name="T17">Services</text:span>
+    (O’Reilly, 2007)</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P5">Antoniou &amp; van Harmelen,
+    <text:span text:style-name="T18">Semantic</text:span><text:span text:style-name="T19">
+    </text:span><text:span text:style-name="T20">Web</text:span><text:span text:style-name="T21">
+    </text:span><text:span text:style-name="T22">Primer</text:span>
+    (MIT, 2004)</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P5">any number of W3C, OASIS, OMG
+    standards</text:p>
+  </text:list-item>
+</text:list>
+<text:list text:style-name="L6">
+  <text:list-item>
+    <text:p text:style-name="P6">please feel free to ask questions as we
+    go along</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P6">the timing estimates are
+    flexible</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P6">mobile phones turned off (or at least
+    silent), please</text:p>
+  </text:list-item>
+</text:list>
+<text:p text:style-name="First_20_paragraph">0.5</text:p>
+<text:p text:style-name="Text_20_body">to 3.1in</text:p>
+<text:list text:style-name="L7">
+  <text:list-item>
+    <text:p text:style-name="P7">DPhil 1991</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P7">SEP since 1999</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P7">programming languages</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P7">generics, patterns, fp,
+    objects…</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P7">and you —</text:p>
+  </text:list-item>
+  <text:list-item>
+    <text:p text:style-name="P7">name? role? objective?</text:p>
+  </text:list-item>
+</text:list>
+<text:p text:style-name="First_20_paragraph">0.4</text:p>
+<text:p text:style-name="Text_20_body"><draw:frame><draw:image xlink:href="diagrams/COM_1686" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad" /></draw:frame></text:p>
