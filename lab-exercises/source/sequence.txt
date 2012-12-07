@@ -1,0 +1,16 @@
+title Reliably Creating an Order
+
+Client -> Service: POST http://.../.../orders/
+note right of Service: service creates new resource and marks it available but incomplete
+Service -> Client: HTTP 201 Created\nLocation: http://..../.../orders/x-y-z
+note left of Client: if the client fails to receive a URL, \nit can retry until it succeeds (idempotent)
+note right of Service: the service should garbage collect unused resources
+Client -> Service: PUT http://.../.../orders/x-y-z with JSON payload
+Service -> Client: HTTP 200 OK
+note left of Client: client can retry until 200 OK is received\nThis ensures successful delivery exactly once.
+
+
+
+
+
+
