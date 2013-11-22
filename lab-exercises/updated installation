@@ -1,0 +1,11 @@
+installed Ubuntu 13.10 32 bit
+User ox-soa password ox-soa
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install default-jdk
+sudo apt-get install cream leafpad
+sudo apt-get install ant maven
+sudo apt-get install tree
+
+installed SoapUI
+Downloaded all the WSO2 products
