@@ -1,7 +1,7 @@
 ox-soa
 ======
 
-These are the materials for the labs for the Oxford Department of Computer Science 
+These are the materials for the labs for the Oxford Software Engineering Programme MSc
 SOA Module.
 
 Source code is licensed under the Apache Software License 2.0 
