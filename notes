@@ -10,3 +10,16 @@ problems with VM.
 
 eclipse fiddling with permissions
 keyboard definition is mac os UK international 
+
+Ex1
+Need empty constructor in OrderBean
+Provide a zip of solution
+
+Ex3
+Step 19. The service class "freo.me.jaxws.OrderService" does not comply to one or more requirements of the JAX-RPC 1.
+
+Ex3a
+Step 5. Reports of Eclipse hanging in Design Mode after adding a couple of properties
+
+Ex11
+Step 40. If CoffeeProvider not showing use the quick picker and refresh GUI
