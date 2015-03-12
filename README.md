@@ -7,4 +7,4 @@ SOA Module.
 Source code is licensed under the Apache Software License 2.0 
 Documentation is licensed under the Creative Commons Attribution ShareAlike license
 
-All materials (c) Paul Fremantle 2012 unless otherwise stated
+All materials (c) Paul Fremantle 2012-14 unless otherwise stated
